@@ -1,8 +1,12 @@
 # Riassunto di SDA
 
 ## indice
-
-
+- [01 - Organizzazione della memoria, chiamate di funzioni, ricorsione](#01---organizzazione-della-memoria-chiamate-di-funzioni-ricorsione)
+   - [L'organizzazione della memoria](#lorganizzazione-della-memoria)
+   - [Record di attivazione](#record-di-attivazione)
+   - [La ricorsione](#la-ricorsione)
+- [02 - Trattabilità e complessità computazionale](#02-trattabilità-e-complessità-computazionale)
+   - [Problemi decidibili ed indecidibili](#problemi-decidibili-e-indecidibili)
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
 ### L'organizzazione della memoria
@@ -32,4 +36,121 @@
 5. **Free memory**
    - è la memoria libera tra lo stack e l'heap
    -se lo stack e l'heap s'incontrano si verifica un' errore di memoria(stack/heap overflow)
-   
+
+### Record di attivazione
+   Ogni funzione crea un suo spazio di memorizzazione specifico nello stack chiamato **record di attivazione**.
+   Esso include tutte le variabili locali, i parametri ed i valori di ritorno della funzione.
+
+   E' come una scatola chiusa, la funzione può fare tutto chiò che vuole senza interferire con l'ambiente di altre funzioni.
+
+### La ricorsione
+La ricorsione è una tecnica di programmazione, ma anche uno strumento per risolvere problemi.
+Una funzione è ricorsiva quando al suo interno è presente una chiamata a se stessa.
+- La funzione ricorsiva può risolvere direttamente dei casi del problema, detti *casi base*, in questo caso restituisce subito un risultato
+- Se vengono passati dei dati che non costituiscono uno dei casi base chiama se stessa passando dei dati *ridotti* o *semplificati*
+- ad ogni chiamata i dati si riducono fino ad arrivare ad uno dei **casi base**
+
+#### Esempio di codice dell' algoritmo del pracheggio
+```
+#include <stdio.h>
+#include <stdlib.h> //per random
+
+double drand (double low, double high);
+
+void park (double a, double b)
+{
+   double p;
+   p = drand(a,b);
+   printf("Auto parcheggiata nella posizione %f\n", p);
+   if(p - a >= 1.0) // c'è spazio sufficente a sinistra per almeno un' Auto
+   {
+      park(a, p - 1.5);
+   }
+   if(b-p >= 1.0) // c'è spazio a destra per almeno un'auto
+   {
+      park(p + 1.5, b);
+   }
+}
+int main(){
+   double l = 10.0; // abbiamo una strada lunga 10
+   park(1,l-1);
+   return EXIT_SUCCESS;
+}
+
+```
+
+#### Altri esempi di funzioni ricorsive
+
+- **esempio 1**: il Fattoriale $f(n) = n!$ è definita ricorsivamente così:
+
+$$f(n)=\begin{cases}
+1 & se\quad n = 0 \\
+n. f(n-1) & se\quad n >0
+
+\end{cases}
+$$
+```
+long fattoriale(long n){
+   if n == 0
+   {
+      return 1;
+   }
+   else
+   {
+      return n * fattoriale(n-1);
+   }
+}
+```
+Il calcolo viene ricondotto al calcolo del fattoriale di un numero più piccolo fino a raggiungere il caso base noto.
+
+#### ricorsione: meccanismo computazionale
+quando la funzione chiama se stessa essa si sospende per eseguire la chiamata ricorsiva.
+L'esecuzione riprende quando la chiamata interna termina
+la sequenza di chiamate ricorsive termina quando quella più annidata incontra uno dei casi si base
+Ogni chiamata alloca sullo *stack* nuove istanze dei parametri e delle variabili locali all' interno dei [**record di attivazione**](#record-di-attivazione)
+
+#### ricorsione ed induzione
+La ricorsione è basata sul principio di *induzione matematica*:
+   - se una proprietà $P$ vale per $n = n_0$ (**Caso base**)
+   - e se posso provare che, *assumendola valida per*  $n$, vale ancheper $n+1$ (**passo induttivo**)
+   - allora $P$ vale per ogni $n \geq n_0 $
+
+Risolvere il problema con un approccio ricorsivo comporta: 
+1. l'identificazione del **caso di base** in cui la soluzione è nota
+2. la capacità di **esprimere il caso generico** in termini dello stesso problema ma in uno o più casi semplificati
+
+- **Esempio 2**: Numeri di Fibonacci
+```
+inf f(int a, int b){
+   assert(b>= 0);//assumiamo b >= 0
+   if (b == 0)
+      return a;
+   else 
+      return f(a, b - 1) + 1;
+
+}
+
+```
+La successione è definita come 
+| $n$   | 0 | 1 | 2 | 3 | 4 | 5 | 6  | 7  | 8  | 9  | 10 | 11  |
+|-------|---|---|---|---|---|---|----|----|----|----|----|-----|
+| $F_n$ | 1 | 1 | 2 | 3 | 5 | 8 | 13 | 21 | 34 | 55 | 89 | 144 |
+
+- $F_0 = 1$
+- $F_1 = 1$
+- $F_n F_{n-1} + F_{n-2}$ per $n \geq 2$
+
+Numeri di Fibonacci
+
+```
+int fibonacci(int n) {
+if (n == 0 || n == 1)
+return 1;
+else
+return fibonacci(n - 1) + fibonacci(n - 2;
+}
+```
+
+## 02 - Trattabilità e complessità computazionale
+
+### Problemi decidibili e indecidibili
