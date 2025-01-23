@@ -25,6 +25,7 @@
       - [Classi di complessità](#classi-di-complessità)
       - [Problemi in $NP$](#problemi-in-np)
       - [Analisi di complessità](#analisi-di-complessità)
+      - [Notazione asintotica e ordini di complessità](#notazione-asintotica-e-ordini-di-complessità)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -393,4 +394,37 @@ Riguardo la relazione inversa, non sappiamo se $NP\overset{?}{\subseteq}$ oppure
 ---
 #### Analisi di complessità
 
-> 
+Negli esempi precedenti abbiano fatto una stima grossolana del numero di operazioni necessarie per risolvere un problema di input $n$
+
+Per avere delle stime più accurate è necessario introdurre un modello di calcolo generico(astratto) e una misura delle operazioni su tale modello di calcolo
+
+- Miusra di **performance** di un *algoritmo* espresse in funzione della dimensione dei dati in input $n$
+  - **tempo** numero di operazioni RAM(elementari) eseguite
+  - **spazio** numero di celle di memoria occupate(in aggiunta a quelle per l'input)
+- **Complessità** o **Costo computazionale** $f(n)$ in tempo e *spazio* di un problema $\Pi$:
+  - caso *pessimo* o *peggiore*: costo massimo fra tutte le istanzs di $\Pi$ aventi dimensioni dei dati pari a $n$
+  - caso *medio*: costo mediato tra tutte le istanza di $\Pi$ aventi dimensioni pari a $n$
+  - ~~caso *ottimo*: costo minimo fra tutte le istanze di $\Pi$ aventi dimensione dei dati pari a $n$~~
+
+**Scopi:**
+- Stimare il tempo impiegato per elaborare un dato input
+- Stimare il più grande input gestibile in tempi "ragionevoli"
+- **Confrontare l'efficenza di algoritmi diversi**
+- ottimizzare le parti più importanti
+
+**Dimensione dell' input**
+- Costo *logaritmico*: la taglia dell' input è il numero di bit necessari per rappresentarlo
+  - Esempio: moltiplicazione di numeri binari lunghi $n$ bit
+- Costo *uniforme*: la taglia dell' input è il numero di elementi di cui è costituito
+  - Esempio: ricerca minimo in un vettore di $n$ elementi
+
+> Possiamo assumere che gli "elementi" siamo rappresentati da un numero costante di bit e pertanto le due misure coincidono a meno di una costante moltiplicativa
+
+#### Notazione asintotica e ordini di complessità
+
+> Dato che l'accuratezza dei risultati non è il nostro interesse principale utilizzeremo una notazione asintotica, che si avvicina a come si comporta l'algoritmo al crescere delle dimensioni del suo input
+
+- **Limitazione superiore $O(f(n))$**
+   Definiamo $g(n) = O(f(n))$ se e solo se $\exists \;c, n_0 : g(n) \leq cf(n)\forall n > n_0$
+
+ ![complessitaFn](img\complessitaFn.png)
