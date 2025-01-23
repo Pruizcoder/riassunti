@@ -154,3 +154,76 @@ return fibonacci(n - 1) + fibonacci(n - 2;
 ## 02 - Trattabilità e complessità computazionale
 
 ### Problemi decidibili e indecidibili
+
+Non tutti i problemi computazionali possono essere risolti algoritmicamente, per esempio il problema della fermata(halting problem)
+(Turing, 1937)
+Non c'è una soluzione nel caso generale(cioè una dimostrazione che consenta di rispondere per un *qualunque algoritmo*)
+In alcuni casi specifici tuttavia è possibile dare delle risposte
+
+#### Problemi decidibili
+- un problema è **decidibile** (o **calcolabile**) se esiste un algoritmo che per ogni istanza è in grado di **terminare** la sua esecuzione giungendo ad una soluzione
+- **Esempio**: *determinare se un numero è primo*
+```
+#include <stdbool.h>
+
+bool primo (int n)
+{
+   int fattore;
+   if (n== 1)
+      return false;
+   if (n == 2)
+      return true;
+   for (fattore = 2; fattore < n / 2; fattore++)
+   if (n % fattore == 0)
+      return false;
+   return true;
+}
+```
+
+#### Problemi indecidibili
+ - un problema è **indecidibile** ( o **non calcolabile**) se nessun algoritmo sia in grado di terminare la sua esecizone giungendo ad una soluzioni ad **ogni istanza**
+    
+    dato un programma ```A```, non esiste un algoritmo per stabilire se esso terminerà o meno la sua esecuzione su un qualunque input **Problema della fermata(Turing, '37)**
+
+#### complessità
+alcuni problemi, nonostante decidibili, possono richiedere un tempo di risoluzione notevole, per esempio il problema delle **torri di Hanoi**
+- **Obiettivo**: spostare tutti i dischi dal piolo ```a``` al piolo ```c```
+- Ogni mossa sposta un disco in cima a un piolo con il vincolo che un disco non può poggiare su uno più piccolo 
+- **Descrizione delle mosse**: Supponiamo che i pioli siano etichettati con `A`, `B`, `C`, e i dischi numerati da $1$ (il più piccolo) a $n$ (il più grande).
+- **algoritmo ricorsivo**
+   1. sposta i primi $n-1$ dischi da `A` a `B`
+   2. sposta il disco n da `A` a `C`
+   3. sposta i primi $n-1$ dischi da `B` a `C`
+   
+   per spostare gli n dischi effettuiamo un operazione elementare(la 2, spostamento di un disco) e delle operazioni complesse(la 1 e la 3) che, però, hanno la stessa struttura del problema originale, ossia lo spostamento di $n-1$ dischi, solo su un numero di dischi ridotto di un' unità.
+- **stampa delle mosse**
+```
+void torri_hanoi(int n, char partenza, char intermedio, char destinazione) {
+if (n > 1) {
+// Sposto tutti gli n - 1 dischi dal piolo partenza
+// al piolo intermedio usando il piolo destinazione come appoggio
+torri_hanoi(n - 1, partenza, destinazione, intermedio);
+/* Sposto il disco rimanente (più largo di tutti) sul piolo destinazione */
+printf("disco %d: %c -> %c\n", n, partenza, destinazione);
+// Sposto tutti gli n - 1 dischi dal piolo intermedio
+// al piolo destinazione usando il piolo partenza come appoggio
+torri_hanoi(n - 1, intermedio, partenza, destinazione);
+} else {
+// È rimasto un solo piolo, lo sposto dal piolo partenza a quello destinazione
+printf("disco %d: %c -> %c\n", n, partenza, destinazione);
+}
+}
+/* esempio di chiamata iniziale */
+torri_hanoi(5, 'A', 'B', 'C');
+```
+-**numero di mosse**
+ > Per spostare gli n dischi servono $2^n-1$ mosse.
+ 
+ Dimostrabile per induzione:
+   - **Caso base**, n = 1: è necessaria una sola mossa, e coerentemente $1=2^1-1$ù
+   - **Passo induttivo**, $n>1$: per ipotesi induttiva lo spostamento di $n-1$ dischi richiede un numero di passi pari a $2^{n-1}-1$
+
+L'algoritmo sposta tutti gli $n-1$ dischi dal piolo di partenza al piolo intermedio, poi sposta il disco rimasto sul piolo di destinazione e infine risposta tutti gli $n-1$ dischi dal piolo intermedio a quello di destinazione:
+$$
+\overbrace{(2{n-1}-1)}^\text{n-1 dischi dal piolo A al B}\quad + \quad \overbrace{1}^{disco n a C}\quad + \quad \underbrace{(2^{n-1}-1)}_\text{n-1 dischi dal piolo B al C}\quad (2^{n-1}-1) + 1 = 2^n-1
+$$
