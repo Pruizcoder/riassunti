@@ -18,12 +18,13 @@
       - [Problemi decidibili](#problemi-decidibili)
       - [Problemi indecidibili](#problemi-indecidibili)
     - [Complessità](#complessità)
-      - [**torri di Hanoi**](#torri-di-hanoi)
+      - [Torri di Hanoi](#torri-di-hanoi)
       - [Problema della ricerca della coppia di putni più vicini](#problema-della-ricerca-della-coppia-di-putni-più-vicini)
       - [Algoritmi esponenziali ed algoritmi polinomiali](#algoritmi-esponenziali-ed-algoritmi-polinomiali)
     - [Classi di complessità dei problemi](#classi-di-complessità-dei-problemi)
       - [Classi di complessità](#classi-di-complessità)
       - [Problemi in $NP$](#problemi-in-np)
+      - [Analisi di complessità](#analisi-di-complessità)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -205,7 +206,7 @@ bool primo (int n)
 ---
 ### Complessità
 alcuni problemi, nonostante decidibili, possono richiedere un tempo di risoluzione notevole, per esempio il problema delle 
-#### **torri di Hanoi**
+#### Torri di Hanoi
 - **Obiettivo**: spostare tutti i dischi dal piolo ```a``` al piolo ```c```
 - Ogni mossa sposta un disco in cima a un piolo con il vincolo che un disco non può poggiare su uno più piccolo 
 - **Descrizione delle mosse**: Supponiamo che i pioli siano etichettati con `A`, `B`, `C`, e i dischi numerati da $1$ (il più piccolo) a $n$ (il più grande).
@@ -349,17 +350,19 @@ Esistono diverse caratterizzazioni dimensionali per i dati di un problema:
 
 -**Definizione**: Un algoritmo è detto ***polinomiale***, nella dimensione di in put $n$, se esistono due costanti $c, n_0 > 0$ tali che il numero di passi elementari da esso eseguiti è al più $n^c$, per ogni input  di dimensione $n$ e per ogni $n> n_0$
 
-
 -**Definizione**: Un algoritmo è detto ***polinomiale***, nella dimensione di in put $n$, se esistono due costanti $c, n_0 > 0$ tali che il numero di passi elementari da esso eseguiti è al più $c^n$, per ogni input  di dimensione $n$ e per ogni $n> n_0$
 
 - **Problema trattabile**: esiste un algoritmo polinomiale che lo risolve.
 - **Problema intrattabile**: non esiste un algoritmo polinomiale che lo risolve.
   
 ---
+
 ### Classi di complessità dei problemi
 
   ![Classi di complessità](img\ClassiComplessita.png)
+  
 #### Classi di complessità 
+
 - $P$ classe dei problemi risolvibili(*deterministicamente*) in tempo polinomiale
 - $EXP$ classe dei problemi risolvibili(*deterministicamente*) in tempo esponenziale
 - $NP$ classe dei probleni per i quali verificare una soluzione richiede tempo polinomiale(risolvibili(*non-deterministicamente*)in tempo polinomiale)
@@ -372,3 +375,22 @@ Basato sul concetto di *"certificato polinomiale"* per un problema computazional
    - chi non ha tale soluzione deve procedere per tentativi richiedendo tempo esponenziale
 
 **Esempio**: date le tre variabili proposizionali $p,q,r \in \{T,F\}$ e la formula logica $\Phi \equiv ( p\,\lor \bar q \lor r) \land(p \, \lor \,r)$, verificare che $p := T, \,q:=F \, r:= F$ soddisfa la formula $\Phi$ è facile, basta sostituire i valori di verità e applicare le regole di valutazione:
+$$
+(T\lor\bar F\lor F)\;\land\;(T\lor F) \equiv T \land T \equiv T
+
+$$
+
+Per trovare la soluzione è necessario provare le $"2^n$ combinazioni
+$(p,q,r) := (T,T,T),(T,T,F), (T,F,T), \dots$di valori di verità per $p,q,r$
+
+$NP$ è la classe di problemi che ammettono un certificato polinomiale
+
+Ovviamente, $P\subseteq NP$ 
+   - infatti, quando il problema $\Pi$ sia polinomiale (ossia $\Pi\in P$), il certificato coincide con la soluzione del problema
+
+Riguardo la relazione inversa, non sappiamo se $NP\overset{?}{\subseteq}$ oppure $NP\overset{?}{\nsubseteq}P$
+
+---
+#### Analisi di complessità
+
+> 
