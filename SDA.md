@@ -26,6 +26,7 @@
       - [Problemi in $NP$](#problemi-in-np)
       - [Analisi di complessità](#analisi-di-complessità)
       - [Notazione asintotica e ordini di complessità](#notazione-asintotica-e-ordini-di-complessità)
+      - [Ordini di Complessità](#ordini-di-complessità)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -425,6 +426,31 @@ Per avere delle stime più accurate è necessario introdurre un modello di calco
 > Dato che l'accuratezza dei risultati non è il nostro interesse principale utilizzeremo una notazione asintotica, che si avvicina a come si comporta l'algoritmo al crescere delle dimensioni del suo input
 
 - **Limitazione superiore $O(f(n))$**
+  
    Definiamo $g(n) = O(f(n))$ se e solo se $\exists \;c, n_0 : g(n) \leq cf(n)\forall n > n_0$
 
- ![complessitaFn](img\complessitaFn.png)
+ ![Limite superiore](img\limSup.png)
+
+- **Limitazione inferiore $\Omega(f(n))$**
+
+   Definiamo $g(n) = \Omega(f(n))$ se e solo se $\exist \; c, n_0 : g(n) \geq cf(n)\forall n > n_0$
+
+![Limite inferiore](img\liminf.png)
+
+- **Limitazione $\Theta(f(n))$**
+  
+  Definiamo $g(n) = \Theta(f(n))$ se e solo se $\exist c_1,c_2,n_0:c_1f(n)\geq g(n) \geq c_2f(n)\forall n > n_0$
+
+![caso medio](img\CasoMedio.png)
+
+#### Ordini di Complessità
+|    $f(n)$     | $10^1$ | $10^2$  |  $10^3$  |  $10^4$   |     Tipo     |
+| :-----------: | :----: | :-----: | :------: | :-------: | :----------: |
+|   $log \;n$   |   3    |    6    |    9     |    13     | Logaritmico  |
+|   $\sqrt n$   |   3    |   10    |    31    |    100    |  sublineare  |
+|      $n$      |   10   |   100   |   1000   |   10000   |   lineare    |
+| $n\; log \;n$ |   30   |   664   |   9965   |  132877   |  loglineare  |
+|     $n^2$     | $10^2$ | $10^4$  |  $10^6$  |  $10^8$   |  quadratico  |
+|     $n^3$     | $10^3$ | $10^6$  |  $10^9$  |  $10^12$  |    cubico    |
+|     $2^n$     | $1024$ | $10^30$ | $10^300$ | $10^3000$ | esponenziale |
+
