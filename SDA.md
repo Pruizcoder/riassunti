@@ -1,12 +1,27 @@
 # Riassunto di SDA
 
 ## indice
-- [01 - Organizzazione della memoria, chiamate di funzioni, ricorsione](#01---organizzazione-della-memoria-chiamate-di-funzioni-ricorsione)
-   - [L'organizzazione della memoria](#lorganizzazione-della-memoria)
-   - [Record di attivazione](#record-di-attivazione)
-   - [La ricorsione](#la-ricorsione)
-- [02 - Trattabilità e complessità computazionale](#02-trattabilità-e-complessità-computazionale)
-   - [Problemi decidibili ed indecidibili](#problemi-decidibili-e-indecidibili)
+- [Riassunto di SDA](#riassunto-di-sda)
+  - [indice](#indice)
+  - [01 - Organizzazione della memoria, chiamate di funzioni, ricorsione](#01---organizzazione-della-memoria-chiamate-di-funzioni-ricorsione)
+    - [L'organizzazione della memoria](#lorganizzazione-della-memoria)
+  - [-se lo stack e l'heap s'incontrano si verifica un' errore di memoria(stack/heap overflow)](#-se-lo-stack-e-lheap-sincontrano-si-verifica-un-errore-di-memoriastackheap-overflow)
+    - [Record di attivazione](#record-di-attivazione)
+  - [E' come una scatola chiusa, la funzione può fare tutto chiò che vuole senza interferire con l'ambiente di altre funzioni.](#e-come-una-scatola-chiusa-la-funzione-può-fare-tutto-chiò-che-vuole-senza-interferire-con-lambiente-di-altre-funzioni)
+    - [La ricorsione](#la-ricorsione)
+      - [Esempio di codice dell' algoritmo del pracheggio](#esempio-di-codice-dell-algoritmo-del-pracheggio)
+      - [Altri esempi di funzioni ricorsive](#altri-esempi-di-funzioni-ricorsive)
+      - [ricorsione: meccanismo computazionale](#ricorsione-meccanismo-computazionale)
+      - [ricorsione ed induzione](#ricorsione-ed-induzione)
+  - [02 - Trattabilità e complessità computazionale](#02---trattabilità-e-complessità-computazionale)
+    - [Problemi decidibili e indecidibili](#problemi-decidibili-e-indecidibili)
+      - [Problemi decidibili](#problemi-decidibili)
+      - [Problemi indecidibili](#problemi-indecidibili)
+    - [Complessità](#complessità)
+      - [**torri di Hanoi**](#torri-di-hanoi)
+      - [Problema della ricerca della coppia di putni più vicini](#problema-della-ricerca-della-coppia-di-putni-più-vicini)
+      - [Algoritmi esponenziali ed algoritmi polinomiali](#algoritmi-esponenziali-ed-algoritmi-polinomiali)
+
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
 ### L'organizzazione della memoria
@@ -36,13 +51,13 @@
 5. **Free memory**
    - è la memoria libera tra lo stack e l'heap
    -se lo stack e l'heap s'incontrano si verifica un' errore di memoria(stack/heap overflow)
-
+---
 ### Record di attivazione
    Ogni funzione crea un suo spazio di memorizzazione specifico nello stack chiamato **record di attivazione**.
    Esso include tutte le variabili locali, i parametri ed i valori di ritorno della funzione.
 
    E' come una scatola chiusa, la funzione può fare tutto chiò che vuole senza interferire con l'ambiente di altre funzioni.
-
+---
 ### La ricorsione
 La ricorsione è una tecnica di programmazione, ma anche uno strumento per risolvere problemi.
 Una funzione è ricorsiva quando al suo interno è presente una chiamata a se stessa.
@@ -132,9 +147,9 @@ inf f(int a, int b){
 
 ```
 La successione è definita come 
-| $n$   | 0 | 1 | 2 | 3 | 4 | 5 | 6  | 7  | 8  | 9  | 10 | 11  |
-|-------|---|---|---|---|---|---|----|----|----|----|----|-----|
-| $F_n$ | 1 | 1 | 2 | 3 | 5 | 8 | 13 | 21 | 34 | 55 | 89 | 144 |
+| $n$   | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  |
+| ----- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| $F_n$ | 1   | 1   | 2   | 3   | 5   | 8   | 13  | 21  | 34  | 55  | 89  | 144 |
 
 - $F_0 = 1$
 - $F_1 = 1$
@@ -184,9 +199,10 @@ bool primo (int n)
  - un problema è **indecidibile** ( o **non calcolabile**) se nessun algoritmo sia in grado di terminare la sua esecizone giungendo ad una soluzioni ad **ogni istanza**
     
     dato un programma ```A```, non esiste un algoritmo per stabilire se esso terminerà o meno la sua esecuzione su un qualunque input **Problema della fermata(Turing, '37)**
-
-#### complessità
-alcuni problemi, nonostante decidibili, possono richiedere un tempo di risoluzione notevole, per esempio il problema delle **torri di Hanoi**
+---
+### Complessità
+alcuni problemi, nonostante decidibili, possono richiedere un tempo di risoluzione notevole, per esempio il problema delle 
+#### **torri di Hanoi**
 - **Obiettivo**: spostare tutti i dischi dal piolo ```a``` al piolo ```c```
 - Ogni mossa sposta un disco in cima a un piolo con il vincolo che un disco non può poggiare su uno più piccolo 
 - **Descrizione delle mosse**: Supponiamo che i pioli siano etichettati con `A`, `B`, `C`, e i dischi numerati da $1$ (il più piccolo) a $n$ (il più grande).
@@ -229,9 +245,9 @@ $$
 $$
 -**tempo di calcolo**: Supponiamo di fare una mossa al secondo, i tempi di calcolo seguono la seguente legge
 
-| $n$   | 5 | 10 | 15 | 20 | 25 | 30 | 35  | 40  | 64 |
-|-------|---|---|---|---|---|---|----|----|----|
-| tempo | $31s$ | $17m$ | $9h$ | $12g$ | $1a$ | $34a$  | $1089a$ | $34865a$ |$585 \cdot 10^9a$ |
+| $n$   | 5     | 10    | 15   | 20    | 25   | 30    | 35      | 40       | 64                |
+| ----- | ----- | ----- | ---- | ----- | ---- | ----- | ------- | -------- | ----------------- |
+| tempo | $31s$ | $17m$ | $9h$ | $12g$ | $1a$ | $34a$ | $1089a$ | $34865a$ | $585 \cdot 10^9a$ |
 
 E se invece di fare una mossa al secondo potessi fare $b$ mosse al secondo per quanti dischi $m$ aggiuntivi rispetto a $m$ riesco a risolvere il gioco in un dato tempo $t$?
 
@@ -243,3 +259,92 @@ n+m = log_2(tb+1)\approx log_2\,t + log_2\,b
 $$
 
 poichè facendo una mossa al secondo nel tempo $t$ riesco a risolvere $n$ dischi:$n \approx log_2\,t$ e dunque $n+m \approx n+ log_2 \, b \implies m \approx log_2\,b$
+
+Quindi, dato che $m \approx log_2 \, b$, se **raddoppio l amia velocità $(b=2)$, riesco a risolvere $1$ solo disco in più.
+
+Ad esempio, per il numero di dischi *"trattabili"* in un giorno ( <24h )
+
+| **operazioni/sec** | 1   | 10  | 100 | $10^3$ | $10^4$ | $10^5$ | $10^6$ | $10^9$ |
+| ------------------ | --- | --- | --- | ------ | ------ | ------ | ------ | ------ |
+| $n+m$              | 17  | 20  | 23  | 26     | 29     | 32     | 35     | 45     |
+
+ > Il problema delle torri di hanoi è **intrattabile**: è dimostrabile che non è possibile usare meno di $2^n-1$ mosse.
+ (non può esistere un algoritmo che usi un numero inferiore di mosse)
+
+#### Problema della ricerca della coppia di putni più vicini
+Dato un insieme di punti $P$ disposti su di un piano, trovare il valore della distanza della coppia di punti che si trova a distanza minima
+
+![distanza minima](img\dist_minima.png)
+
+- **Problema della ricerca della coppia di punti più vicini
+```
+#include <math.h>
+double puntiPiuVicini(/* insieme di punti */P, int n)
+{
+   double min = +INFINITY, d;
+   for (i=0; i<n; i++)
+   {
+      for (j=0; j<n; j++)
+      {
+         d = distanza(P,i,j);// distanza fra i punti i e j
+         /*confronto*/
+         if(i != j && d <min)
+         {
+            min = d;
+         }
+      }
+   }
+   return min;
+}
+
+```
+- **Tempo di calcolo**
+
+Quante operazioni di calcolo della distanza fra punti verranno effettuate?
+
+$$
+\sum_{i=0}^{n-1}\sum_{j=0}^{n-1}1=\sum_{i=0}^{n-1}n = n \, \cdot \, n = n^2
+$$
+
+Supponendo di effettuare un controllo al secondo, i tempid i calcolo crescono secondo la seguente legge:
+|  $n$  | **5** | **10** | **15** | **20** | **25** | **30** | **35** | **40** |
+| :---: | :---: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| tempo | $25s$ | $100s$ |  $4m$  |  $7m$  | $10m$  | $15m$  | $20m$  | $26m$  |
+
+Se invece di fare un confronto al secondo, si fanno $b$ confronti al secondo del tempo $t$ riesco a risolvere il problema per uin vettore di dimensione $n+m$, dove $t = (n+m)^2/b$
+$$
+n+m=(tb)^{1/2}=\sqrt{t}\sqrt{b}=n\sqrt{b}
+
+$$
+
+Aumentare di un fattore moltiplicativo $b$ (ossia $b$ operazioni/sec) migliora di un fattore moltiplicativo circa pari a $\sqrt{b}$
+| **operazioni/sec** |   1   |  10   |  100  | $10^3$ | $10^4$ | $10^5$ | $10^6$ |
+| :----------------: | :---: | :---: | :---: | :----: | :----: | :----: | :----: |
+|       $n+m$        |  64   |  202  |  640  |  2023  |  6400  | 20238  | 64000  |
+
+#### Algoritmi esponenziali ed algoritmi polinomiali
+
+L'algoritmo delle torri di Hanoi è un algoritmo **esponenziale**: richiede un tempo proporzionale ad una funzione esponenziale della dimensione dell' input.
+> EPr inciso é la stessa situazione del riempimento delle Terapie intensive in caso di malattie contagiose in assenza di controlle: possiamo raddoppiarne i posti ($b=2$), ma il numedo di giorni che servirà per riempirle interamente si sposta solamente si qualche unità ma no raddoppia.
+L'algoritmo della ricerca della coppia di putni vicini è un' algoritmo **polinomiale** proporzionalmente a un polinomio della dimensione dell'input (solitamente di grado basso)
+
+- **Dimensione dei dati per un problema generico**
+Esistono diverse caratterizzazioni dimensionali per i dati di un problema:
+
+ per la rappresentazone dei dati: $k$ bit possono rappresentare interi in 
+ $$
+{0,1,\dots,2^k -1}
+ $$
+ Esempio, per $k=3$ 
+ | **000** | **001** | **010** | **011** | **100** | **101** | **110** | **111** |
+ | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
+ |    0    |    1    |    2    |    3    |    4    |    5    |    6    |    7    |
+
+ *numero di elementi di una struttura dati: array, stringhe, liste, insiemi, alberi*
+
+ *Numero di celle di memoria: occupate dai dati (ognuna contiene $\approx logn$* bit)
+
+-**Definizione**: Un algoritmo è detto ***polinomiale***, nella dimensione di in put $n$, se esistono due costanti $c, n_0 > 0$ tali che il numero di passi elementari da esso eseguiti è al più $n^c$, per ogni 
+
+
+
