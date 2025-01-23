@@ -333,12 +333,13 @@ L'algoritmo delle torri di Hanoi è un algoritmo **esponenziale**: richiede un t
 L'algoritmo della ricerca della coppia di putni vicini è un' algoritmo **polinomiale** proporzionalmente a un polinomio della dimensione dell'input (solitamente di grado basso)
 
 - **Dimensione dei dati per un problema generico**
+  
 Esistono diverse caratterizzazioni dimensionali per i dati di un problema:
-
- per la rappresentazone dei dati: $k$ bit possono rappresentare interi in 
- $$
-{0,1,\dots,2^k -1}
- $$
+per la rappresentazone dei dati: $k$ bit possono rappresentare interi in 
+$$
+\{0,1,\dots,2^k -1\}
+S$$
+ 
  Esempio, per $k=3$ 
  | **000** | **001** | **010** | **011** | **100** | **101** | **110** | **111** |
  | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
@@ -354,13 +355,12 @@ Esistono diverse caratterizzazioni dimensionali per i dati di un problema:
 
 - **Problema trattabile**: esiste un algoritmo polinomiale che lo risolve.
 - **Problema intrattabile**: non esiste un algoritmo polinomiale che lo risolve.
-  
----
 
+---
 ### Classi di complessità dei problemi
 
   ![Classi di complessità](img\ClassiComplessita.png)
-  
+
 #### Classi di complessità 
 
 - $P$ classe dei problemi risolvibili(*deterministicamente*) in tempo polinomiale
