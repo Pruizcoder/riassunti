@@ -85,7 +85,7 @@ int main(){
 
 $$f(n)=\begin{cases}
 1 & se\quad n = 0 \\
-n. f(n-1) & se\quad n >0
+n \cdot f(n-1) & se\quad n >0
 
 \end{cases}
 $$
@@ -227,3 +227,19 @@ L'algoritmo sposta tutti gli $n-1$ dischi dal piolo di partenza al piolo interme
 $$
 \overbrace{(2{n-1}-1)}^\text{n-1 dischi dal piolo A al B}\quad + \quad \overbrace{1}^{disco n a C}\quad + \quad \underbrace{(2^{n-1}-1)}_\text{n-1 dischi dal piolo B al C}\quad (2^{n-1}-1) + 1 = 2^n-1
 $$
+-**tempo di calcolo**: Supponiamo di fare una mossa al secondo, i tempi di calcolo seguono la seguente legge
+
+| $n$   | 5 | 10 | 15 | 20 | 25 | 30 | 35  | 40  | 64 |
+|-------|---|---|---|---|---|---|----|----|----|
+| tempo | $31s$ | $17m$ | $9h$ | $12g$ | $1a$ | $34a$  | $1089a$ | $34865a$ |$585 \cdot 10^9a$ |
+
+E se invece di fare una mossa al secondo potessi fare $b$ mosse al secondo per quanti dischi $m$ aggiuntivi rispetto a $m$ riesco a risolvere il gioco in un dato tempo $t$?
+
+Devoi risolvere l'equazione:
+$$
+(2^{n+m}-1)/b=t \\
+2^{n+m} = tb+1 \\
+n+m = log_2(tb+1)\approx log_2\,t + log_2\,b
+$$
+
+poichè facendo una mossa al secondo nel tempo $t$ riesco a risolvere $n$ dischi:$n \approx log_2\,t$ e dunque $n+m \approx n+ log_2 \, b \implies m \approx log_2\,b$
