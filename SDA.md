@@ -27,6 +27,8 @@
       - [Analisi di complessità](#analisi-di-complessità)
       - [Notazione asintotica e ordini di complessità](#notazione-asintotica-e-ordini-di-complessità)
       - [Ordini di Complessità](#ordini-di-complessità)
+      - [Analisi strutturale](#analisi-strutturale)
+        - [Guida per il calcolo del costo al caso pessimo](#guida-per-il-calcolo-del-costo-al-caso-pessimo)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -453,4 +455,97 @@ Per avere delle stime più accurate è necessario introdurre un modello di calco
 |     $n^2$     | $10^2$ | $10^4$  |  $10^6$  |  $10^8$   |  quadratico  |
 |     $n^3$     | $10^3$ | $10^6$  |  $10^9$  |  $10^12$  |    cubico    |
 |     $2^n$     | $1024$ | $10^30$ | $10^300$ | $10^3000$ | esponenziale |
+
+$$
+O(1) \sub O(log\;n ) \sub O(n^h)\sub(n^hlog\;n)\sub O(a^n) \sub O(n^n)
+$$
+
+**Proprietà della notazione asintotica**
+
+Per stimare gli ordini di grandezza non è necessario applicare le definizioni ma si possono usare le seguenti regole per semplificare i calcoli
+- **Riflessività**: per ogni costante $c, c\cdot f(n)$ é $O(f(n))$(lo stesso per $\Omega$ e $\Theta$)
+- **Transitività**: se $g(n) = O(f(n))$e $f(n)= O(h(n))$allora$g(n)=O(h(n))$(lo stesso per $\Omega$e  $\Theta$)
+- **Simmetria**: $g(n)=\Theta(f(n))$ se e solo se $f(n)= \Theta(g(n))$
+- **Simmetria trasposta**: $g(n)=\Theta(f(n))$ se e solo se $f(n)= \Omega(g(n))$
+- **Somma**: $f(n) + g(n) = O(max\{f(n),g(n)\})$(lo stesso per $\Omega$ e $\Theta$)
+- **Prodotto**: $g(n)= O(f(n)), h(n) = O(q(n))$allora $g(n)\cdot h(n) = O(f(n)\cdot q(n))$(lo stesso per $\Omega$ e $\Theta$)
+
+---
+  
+#### Analisi strutturale
+
+Per gli algoritmi descritti in linguaggi imperativi come il C é possibile definire delle regole che consentono di stimare la complessità computazionale direttamente dalla struttura del programma.
+> La stima strutturale al caso pessimo risulta essere particolarmente agevole grazie all' assorbimento degli ordini di crescita inferiori nella notazione asintotica
+
+##### Guida per il calcolo del costo al caso pessimo
+
+- La complessità di una sequenzqa di istruzioni è data dalla somma delle complessità delle singole istruzioni della sequenza
+- Il costo di una chiamata a funzione è il costo del suo corpo più il passaggio dei parametri(qualora siano a loro volta delle operazioni non elementari)
+  - Le funzioni ricorsive saranno trattate a parte
+- la complessita di una condizione `if(guardia)blocco1 else blocco2` è data da:
+$$
+costo(guardia)+ max\{costo(blocco1), costo(blocco2)\}
+$$
+- la complessità di un ciclo con un numero determinato di iterazione `for i = 0; i<m; i++` è data da:
+$$
+\sum^{m-1}_{i=0}costo(corpo)_i+2costante
+$$
+   costo del corpo all' iterazione $i$, più due volte un costo costante dovuto alla valutazione di  inizializzazione / incremento e condizione
+- la complessità di un ciclo con un numero indeterminato di iterazioni`while(guardia)corpo` è data da:
+$$
+\sum^{m-1}_{i=0}costo(guardia)_i + costo(corpo)_i + costo (guardia)_m
+$$
+dove $m$ é il massimo numero di volte in cui la guardia risulta soddisfatta.
+**Esempio**
+Costo computazionale nel calcolo del minimo di un vettore (versione naive)
+```
+int minNaive(int a[], int n)
+{
+   int i,j;
+   bool is_min;
+   for (i = 0;i < n; i++)
+   {
+      is_min = true;
+      for(j = 0, j< n; j++)
+      {
+         if(a[i]> a[j])
+         {
+            is_min = false;
+         }
+      }
+   if(is_min)
+   {
+      return a[i];
+   }
+   }
+}
+```
+$$
+T(n) = 2c_1\cdot n + c_2 \cdot n + 2c_3 \cdot n \cdot n + c_4 \cdot n \cdot n + c_5 \cdot n \cdot n +c_6 \cdot n+c_7 = \\
+ n^2(2c_3+c_4+c_5)+n(2c_1+c_2+c_6)+ 1(c_7)\\
+ T(n)= n^2  \underbrace{(2c_3+c4+c_5)}_{c^\prime}+n\underbrace{(2c_1+c_2+c_6)}_{c^{\prime \prime}}+1\underbrace{(c_7)}_{c^{\prime \prime \prime}} \\
+ O(n^2)+ O(n)+ O(1) = O(n^2)
+$$
+*(per le regole di **riflessività** e **somma** della notazione asintotica)*
+
+**Caso medio**
+Supponendo che i valori nell' array siano distribuiti uniformemente, il minimo ha la probabilità $\frac{1}{n}$ di trovarsi in un punto $j$ del vettore e il csoto dell'algoritmo, per la posizione $j$ è dato da:
+$$
+jn(1-\frac{1}{n})^{j-1}
+$$
+- $j\cdot n$ è il numero di elementi verificati(il numero di iterazioni del ciclo esterno $j$ moltiplicato per quelle del ciclo interno $n$)
+- $jn(1-\frac{1}{n})^{j-1}$è la probabilità che il minimo non fosse nessun elemento in posizione minore di $j$(la probabilità che non sia il primo è $(1-\frac{1}{n})$, che non sia il secondo $(1-\frac{1}{n})^2$, che non sia il terzo $(1-\frac{1}{n})^3$, e così via)
+
+Il** valore atteso** (la media) del numero di valori verificati è dato dalla somma di tali valori per tutte le posizioni $j$, diviso per il numero $n$ di valori
+$$
+\mathbb{E}[T(n)]=\sum^{n}_{j=1}{\frac{jn(1-\frac{1}{n})^{j-1}}{n}}=(1-2(1-\frac{1}{n})^n)n^2
+$$
+si ha
+$$
+\lim_{n\rightarrow \infty}(1-\frac{1}{n})^n = \frac{1}{e}
+$$
+dunque
+$$
+\mathbb{E}[T(n)]\approx(1-\frac{2}{e})n^2=O(n^2)
+$$
 
