@@ -21,6 +21,9 @@
       - [**torri di Hanoi**](#torri-di-hanoi)
       - [Problema della ricerca della coppia di putni più vicini](#problema-della-ricerca-della-coppia-di-putni-più-vicini)
       - [Algoritmi esponenziali ed algoritmi polinomiali](#algoritmi-esponenziali-ed-algoritmi-polinomiali)
+    - [Classi di complessità dei problemi](#classi-di-complessità-dei-problemi)
+      - [Classi di complessità](#classi-di-complessità)
+      - [Problemi in $NP$](#problemi-in-np)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -344,7 +347,28 @@ Esistono diverse caratterizzazioni dimensionali per i dati di un problema:
 
  *Numero di celle di memoria: occupate dai dati (ognuna contiene $\approx logn$* bit)
 
--**Definizione**: Un algoritmo è detto ***polinomiale***, nella dimensione di in put $n$, se esistono due costanti $c, n_0 > 0$ tali che il numero di passi elementari da esso eseguiti è al più $n^c$, per ogni 
+-**Definizione**: Un algoritmo è detto ***polinomiale***, nella dimensione di in put $n$, se esistono due costanti $c, n_0 > 0$ tali che il numero di passi elementari da esso eseguiti è al più $n^c$, per ogni input  di dimensione $n$ e per ogni $n> n_0$
 
 
+-**Definizione**: Un algoritmo è detto ***polinomiale***, nella dimensione di in put $n$, se esistono due costanti $c, n_0 > 0$ tali che il numero di passi elementari da esso eseguiti è al più $c^n$, per ogni input  di dimensione $n$ e per ogni $n> n_0$
 
+- **Problema trattabile**: esiste un algoritmo polinomiale che lo risolve.
+- **Problema intrattabile**: non esiste un algoritmo polinomiale che lo risolve.
+  
+---
+### Classi di complessità dei problemi
+
+  ![Classi di complessità](img\ClassiComplessita.png)
+#### Classi di complessità 
+- $P$ classe dei problemi risolvibili(*deterministicamente*) in tempo polinomiale
+- $EXP$ classe dei problemi risolvibili(*deterministicamente*) in tempo esponenziale
+- $NP$ classe dei probleni per i quali verificare una soluzione richiede tempo polinomiale(risolvibili(*non-deterministicamente*)in tempo polinomiale)
+- $NPC$ classe dei problemi *completi* per $NP£, detti $NP$-Completi
+  
+#### Problemi in $NP$
+
+Basato sul concetto di *"certificato polinomiale"* per un problema computazionale $\Pi$
+   - chi ha la soluzione per in istanza di $\Pi$ può convincere che la soluzione è giusta in tempo polinomiale
+   - chi non ha tale soluzione deve procedere per tentativi richiedendo tempo esponenziale
+
+**Esempio**: date le tre variabili proposizionali $p,q,r \in \{T,F\}$ e la formula logica $\Phi \equiv ( p\,\lor \bar q \lor r) \land(p \, \lor \,r)$, verificare che $p := T, \,q:=F \, r:= F$ soddisfa la formula $\Phi$ è facile, basta sostituire i valori di verità e applicare le regole di valutazione:
