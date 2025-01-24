@@ -712,3 +712,12 @@ Con un **raddoppio**, $n=d$ elementi sono copiati nell'array ridimensionato a $2
 occorrono almeno antri $n$ estensioni prima che sia necessario un ulteriore raddoppio
 
 ![estensione_vettore](img\estensioneVettore.png)
+
+Il costo di ridimensionamento $O(n)$ è **"spalmato"** su almeno$^\dag$ altre $n$ operazioni di estensione per le quali il costo sarà  $O(1)$(si tratterà di aggiornare la dimensione $n$); il costo **"ammortizzato"** di questa operazione è, pertanto:
+$$
+\frac{O(n)}{n}= O(1)
+$$
+
+$\dag$ portrebbero essere più di $n$ se intercalate con operazioni di riduzione.
+
+:Con un **dimezzamento**, $n= \frac{d}{4}$ elementi
