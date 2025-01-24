@@ -45,6 +45,13 @@
       - [creazione dei nodi](#creazione-dei-nodi)
       - [liste: inserimento in testa e coda](#liste-inserimento-in-testa-e-coda)
       - [Liste: eliminazione in testa e coda](#liste-eliminazione-in-testa-e-coda)
+      - [liste: proprietà e stampa](#liste-proprietà-e-stampa)
+      - [Liste: eliminazione della lista e di nodi](#liste-eliminazione-della-lista-e-di-nodi)
+      - [Liste: Frammenti di altre operazioni](#liste-frammenti-di-altre-operazioni)
+      - [Liste: considerazioni conclusive](#liste-considerazioni-conclusive)
+      - [Liste doppie](#liste-doppie)
+      - [Liste doppie: operazioni](#liste-doppie-operazioni)
+      - [Liste: Operazioni/complessità](#liste-operazionicomplessità)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -1076,6 +1083,177 @@ void elimina_in_testa(lista *l){
    elimina_nodo(n);
    //mantieni la coda coerente
    if(l->lunghezza == 0)
-      l->coda = NULL;s
+      l->coda = NULL;
 }
 ```
+```
+void elimina_in_coda(lista *l){
+   nodo_lista *c = l->testa, *n = l->coda;
+      if(l->lunghezza == 0 )
+      return;
+      //cerca il predecessore della coda
+      //che diventerà la nuova cosa
+      if (l->lunghezza == 1){
+         l->testa = NULL;
+         l->coda = NULL;
+      }
+      else
+      {
+         while(c->succ != n)
+            c = c->succ;
+         l->coda = c;
+         l-coda->succ = NULL;
+      }
+      l->lunghezza--;
+      elimina_nodo (n);
+}
+```
+#### liste: proprietà e stampa
+
+```
+int lunghezza(lista l){
+   return l.lunghezza;
+}
+bool lista_vuota(lista l){
+   return l.lunghezza == 0;
+}
+
+```
+
+```
+void stampa_lista(lista l){
+   nodo_lista *n = l.testa;
+   while(n!= NULL){
+      printf("%g", n->dato);
+      n = n-> succ;
+   }
+   if (l.lunghezza > 0)
+   printf("\n")
+}
+```
+#### Liste: eliminazione della lista e di nodi
+
+```
+void elimina_lista(lista *l){
+   nodo_lista *n = l->testa;
+   while(n!= NULL){
+      nodo_lista *s = n->succ;
+      elimina_nodo(n);
+      n = s;
+   }
+   l->testa = NULL;
+   l->coda = NULL;
+   l->lunghezza = 0;
+}
+```
+
+```
+void elimina_nodo(nodo_lista *n){
+   free(n);
+   n = NULL;
+}
+```
+
+#### Liste: Frammenti di altre operazioni
+
+**Inserimento di un nuovo elemento** `s` come successore di un elemento arbitrario `p` (se `p !=  NULL`, tempo $O(1)$).
+
+```
+s->succ = p->succ;
+p->succ = s;
+```
+**Rimozione** di un elemento `n` se il suo predecessore non è noto (Tempo $O(n)$)
+
+```
+nodo_lista* c = l.testa->succ, *p = l.testa;
+//determino p, il predecessore di n
+while (p->succ != n){
+   p = c;
+   c = c->succ;
+}
+p->succ = n->succ;
+```
+
+**Schema di iterazione ed elaborazione** lungo tutti gli elementi di una lista:
+```
+nodo_lista* c = l.testa;
+while(c!= NULL){
+   Elabora(c);
+   c = c-> succ;
+
+}
+//la funzione di elaborazione di ciascun nodo dev'essere qualcosa del tipo:
+//void Elabora(nodo_lista c)
+```
+
+#### Liste: considerazioni conclusive
+
+**vantaggi**
+- dimensione dinamica senza necessità di sovradimensionamento
+- possibilità di inserimento di un elemento esistente in qualunque punto della sequenza a differenza dei vettori nei quali posso solo aggiungere ed eliminare alla fine del vettore
+
+**svantaggi**
+- tempo di accesso dipendente dalla posizione dell'elemento
+- asimmetria nelle operazioni di accesso sequenziali per indici crescenti(facile, $O(1)$) o decrescenti(costosa, $O(n^2)$)
+
+---
+
+#### Liste doppie
+
+Uno degli svantaggi della lista(semplice) è la necessità di ripartire dalla sua testa qualora sia necessario trovare il predecessore di un elemento
+- ad esempio per effettuare un inserimento in coda o l'eliminazione di un nodo arbitrario
+
+Ovviamo a questa limitazione con una struttura leggermente diversa in chi viene mantenuto anche il puntatore all'elemento precedente
+
+![listeDoppie](img\listeDoppie.png)
+
+Ciò consente lo spostamento, seppur sequenziale, da qualunque nodo in entrambe le direzioni (avanti e indietro)
+
+La struttura è analoga a quella della lista semplice, il descrittore è praticamente uguale, cambia la descrizione del singolo nodo
+```
+typedef struct _nodo_lista_doppia{
+   float dato; // dato contenuto nel nodo corrente
+   struct _nodo_lista_doppia* succ; // successore del nodo corrente
+   struct _nodo_lista_doppia* pred; // predecessore del nodo corrente
+}nodo_lista_doppia;
+
+typedef struct{
+   nodo_lista_doppia* testa;
+   nodo_lista_doppia* coda;
+   int lunghezza;
+}lista_doppia;
+
+```
+
+#### Liste doppie: operazioni
+Sostanzialmente simili a quelle della lista semplice, con la differenza di **dover mantenere la coerenza** anche del puntatore all'elemento precedente, ad esempio:
+```
+void aggiungi_in_testa_d(lista_doppia *l, float dato){
+   nodo_lista_doppia *n = crea_nodo_d(dato);
+   if(l->lunghezza == 0)
+      l->coda = n;
+   if( l->lunghezza > 0)
+      l->testa->pred = n; // anche il predecessore va mantenuto coerente
+   n-> succ = l->testa;
+   l-> testa = n;
+   l->lunghezza++;
+
+}
+```
+
+#### Liste: Operazioni/complessità
+
+Complessita temporale $T(n)$ delle operazioni con $n$ lunghezza corrente della lista
+
+|             Operazione             | lista semplice(senza puntatori aggiuntivi) | lista semplice(con puntatori aggiuntivi) | lista doppia |
+| :--------------------------------: | :----------------------------------------: | :--------------------------------------: | :----------: |
+|             Creazione              |                   $O(1)$                   |                  $O(1)$                  |    $O(1)$    |
+|        inserimento in testa        |                   $O(1)$                   |                  $O(1)$                  |    $O(1)$    |
+|        inserimento in coda         |                   $O(1)$                   |                  $O(1)$                  |    $O(1)$    |
+|       ricerca di un elemento       |                   $O(n)$                   |                  $O(n)$                  |    $O(n)$    |
+| inserimento in un punto arbitrario |                   $O(n)$                   |                  $O(1)$                  |    $O(1)$    |
+|       eliminazione in testa        |                   $O(1)$                   |                  $O(1)$                  |    $O(1)$    |
+|       eliminazione in testa        |                   $O(n)$                   |                  $O(n)$                  |    $O(1)$    |
+|            distruzione             |                   $O(n)$                   |                  $O(n)$                  |    $O(n)$    |
+
+
