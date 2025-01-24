@@ -35,6 +35,16 @@
       - [array dinamici](#array-dinamici)
       - [array dinamici: descrittore](#array-dinamici-descrittore)
     - [Liste](#liste)
+      - [Puntatori a `struct`](#puntatori-a-struct)
+      - [terminologia delle liste](#terminologia-delle-liste)
+      - [operazioni di accesso](#operazioni-di-accesso)
+      - [lunghezza](#lunghezza)
+      - [nodi: inserimento in testa](#nodi-inserimento-in-testa)
+      - [nodi: inserimento in coda](#nodi-inserimento-in-coda)
+      - [descrittore](#descrittore)
+      - [creazione dei nodi](#creazione-dei-nodi)
+      - [liste: inserimento in testa e coda](#liste-inserimento-in-testa-e-coda)
+      - [Liste: eliminazione in testa e coda](#liste-eliminazione-in-testa-e-coda)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -859,8 +869,11 @@ Limiti:
 - Necessità di mantenere più informazioni in modo coerente(comune anche agli array classici)
 - Vincolo **forte** sul tipo di dato contenuto nell'array
   - in principio dovremmo definire un nuovo descrittore e "ricopiare il codice" delle funzioni per adattare i dati ad un altro tipo diverso da `float`
+
+---
   
 ### Liste
+![liste](img\liste.png)
 
 Una **lista** è l'implementazione concreta di una struttura dati *sequenza* ad **accesso sequenziale**.
 
@@ -875,4 +888,194 @@ typedef struct _nodo_lista{
    //successore del nodo corrente(NULL in caso non esista)
    struct _nodo_lista *succ;
 }nodo_lista;
+```
+- il campo `dato` contiene il dato, mentre il campo `succ` indica l'elemento successivo
+- il valore `NULL` indica la fine della lista
+- la lista vuota è indicata da $a$ avente valore `NULL`
+
+Sostanzialmente, dunque, una lista può essere rappresentata da un puntatore al suo primo elemento con la struttura descritta in precedenza
+
+Alcune osservazioni sulla definizione:
+- la `struct _nodo_lista` è **ricorsiva**(ossia utilizza, nella sua definizione, un puntatore a se stessa), pertanto *non può essere definita in modo "anonimo"*
+- Utilizzeremo la convenzione di premettere un carattere di sottolineatura `_` ai nomi che è necessario definire ma che non ci interessano
+
+#### Puntatori a `struct`
+
+Nel caso di una variabile che contenga un puntatore a `struct` la notazione per accedere ad un elemento della struct stessa può essere semplificato
+```
+nodo_lista* p = ...; //supponiamo p sia un nodo della lista
+
+(*p).dato = 5; //accesso tradizionale(dereferenzio p e accedo al campo dato)
+
+p->dato = 5; // accesso semplificato (accedo al campo dato puntato da p)
+```
+
+#### terminologia delle liste
+
+- un **nodo** della lista, detto anche **elemento**, è una variabile del tipo`struct _nodo_lista` memorizzata sull'heap
+- il primo elemento della lista $(a_0)$ è detto **testa** della lista e rappresenta il punto di accesso alla lista stessa
+- l'ultimo elemento della lista $a_{n-1}$ è detto **coda** della lista, talvolta può essere gestito esplicitamente anche se non è indispensabile
+- dato un nodo $a_j$, il dono $a_{j+1}$ raggiungibile attraverso il puntatore `succ` è detto **successore** del nodo $a_j$
+  - il successore **non esiste** nel caso $j = n-1$, in tal caso il puntatore è `NULL`
+- il nodo $a_{j-1}$,  se $j>0$, è detto **predecessore** del nodo $a_j$
+  - non esiste predecessore della testa
+
+#### operazioni di accesso
+
+Accesso ad $a_j$:scandire i primi $j$ elementi, iniziando da $a_0$ e accedere via via al successivo: tempo totale $O(j+1)$(qualora si possa partire da $a_{j-k}$ il costo è $O(k)$)
+```
+nodo_lista* elemento_lista(nodo_lista* t, int j)
+{//questo frammento di codice può essere utilizzato anche al di fuori della funzione
+   int i = 0;
+   nodo_lista *c = t; //t è la testa della litsa, c è il nodo corrente
+   while(i < j && c |= NULL)
+   {
+      i++;
+      c = c->succ;
+   }
+   //se i >= j vuol dire che la lista non aveva almeno j elementi
+   //in tal caso c == NULL
+   return c;
+}
+```
+
+Caso pessimo$O(n)$ con $n$ lunghezza della lista
+
+#### lunghezza
+
+Per conoscere la lunghezza della lista, senz'alcun'altra informazione, devo scandirla interamente contando di quanti elementi è costituita
+```
+int lunghezza_lista(nodo_lista* t)
+{
+int i = 0;
+nodo_lista *c = t;//t è la testa della lista, c è il nodo corrente
+while(c != NULL)
+{
+   i++;
+   c = c->succ;
+}
+return i;
+
+}
+```
+
+Per migliorare la complessità, in genere oltre ad $a$, puntatore al primo elemento della lista si potrebbe anche mantenere la lunghezza della lista $l$
+
+#### nodi: inserimento in testa
+
+Inserimento in testa dell'elemento `s`(`t` è la testa precedente):
+```
+nodo_lista* inserisci_in_testa(nodo_lista *t t, nodo_lista *s)
+{
+   s->succ = t;
+   t = s;
+   return t;
+}
+```
+![inserimento in testa della litsa](img\inserimentoInTestaLista.png)
+
+Tempo $O(1)$
+
+
+#### nodi: inserimento in coda
+
+Inserimento in coda alla lista dell'elemento `s`:
+
+```
+nodo_lista* inserisci_lista_coda(nodo_lista *t t, nodo_lista *s){
+   nodo_lista*c = t;
+   if(c == NULL)
+   {
+      t = s;
+      return s;
+   }
+while(c->succ != NULL)
+   c = c->succ;
+   //aggiungi l'elemento in coda
+   c-> succ = s;
+   s-> succ = NULL;
+   return t;
+}
+```
+
+Tempo $O(n)$ dovuto alla ricerca dell' elemento in coda attraverso `c`. Qualora si memorizzasse sempre anche il puntatore all'ultimo elemento della lista: $O(1)$
+
+#### descrittore
+
+Analogamente al caso degli array, per riunire in un unico contenitore tutte le informazioni relative ad una lista utilizziamo un descrittore che **rappresenta** la lista e verrà modificato dalle funzioni di manipolazione delle liste
+```
+typedef struct{
+   //per la manipolazione della lista e l'accesso sequenziale
+   nodo_lista *testa;
+   //per rendere più efficente l'eventuale inserimento in coda
+   nodo_lista *coda;
+   //per rendere più efficente l'interrogazione sulla lughezza della lista
+   int lunghezza;
+}lista;
+```
+**Convenzione**: tutte le operazioni di manipolazione di liste *restituiscono*(direttamente o per passaggio per riferimento) il nuovo descrittore alla lista
+
+#### creazione dei nodi
+```
+nodo_lista *crea_nodo(float dato){
+   nodo_lista *n = (nodo_lista)malloc(sizeof(nodo_lista));
+   n->dato = dato;
+   n->succ = NULL;
+   return n;
+}
+
+lista crea_lista(){
+   lista l;
+   l.testa = NULL;
+   l.coda = NULL;
+   l.lunghezza = 0;
+   return l;
+}
+```
+#### liste: inserimento in testa e coda
+
+```
+void aggiungi_in_testa(litsa *l, float dato){
+   nodo_lista *n = crea_nodo(dato);
+   if (l->lunghezza == 0)
+   {
+      l->coda = n;
+   }
+      n->succ = l->testa;
+      l->testa = n;
+      //dobbiamo mantenere la coerenza
+      //anche di questo dato
+      l->lunghezza++;
+}
+```
+```
+void aggiungi_in_coda(lista *l, float dato){
+   nodo_lista *n = crea_nodo(dato);
+   if (l->lunghezza > 0)
+   {
+      l->coda->succ = n;
+   }else{
+      l-> testa = n;
+   }
+   l->coda = n;
+}
+```
+#### Liste: eliminazione in testa e coda
+
+```
+void elimina_in_testa(lista *l){
+   nodo_lista *n = l-> testa;
+   // se la lista è vuota non c'è nulla da eliminare
+   if(l->lunghezza == 0)
+      return;
+   // altrimenti sposta i puntatori
+   l->testa = l->testa->succ;
+   //aggiorna la lunghezza
+   l-> lunghezza--;
+   //elimina il nodo
+   elimina_nodo(n);
+   //mantieni la coda coerente
+   if(l->lunghezza == 0)
+      l->coda = NULL;s
+}
 ```
