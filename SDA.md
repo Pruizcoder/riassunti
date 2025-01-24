@@ -33,6 +33,8 @@
       - [Allocazione della memoria in C](#allocazione-della-memoria-in-c)
     - [Array](#array)
       - [array dinamici](#array-dinamici)
+      - [array dinamici: descrittore](#array-dinamici-descrittore)
+    - [Liste](#liste)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -720,4 +722,144 @@ $$
 
 $\dag$ portrebbero essere più di $n$ se intercalate con operazioni di riduzione.
 
-:Con un **dimezzamento**, $n= \frac{d}{4}$ elementi
+:Con un **dimezzamento**, $n= \frac{d}{4}$ elementi sono copiagi nell'array ridimensionato a $\frac{d}{2}$ elementi: occorrono almeno altre $\frac{n}{2}$ riduzioni prima di un unteriore dimezzamento
+
+![riducivettore](img\RiduciVettore.png)
+
+Il costo di ridimensionamento $O(n)$ è **"spalmato"** su almeno altre $\frac{n}{2}$ eventuali operazioni di riduzione o $n$ operazioni di estensione per le quali il costo sarà $O(1)$(si tratterà di aggiornare la dimensione $n$), dunque il costo **"ammortizzato"** sarà:
+$$
+\frac{O(n)}{n/2}= \frac{2O(n)}{n}= O(1)
+$$
+
+In tutti i casi il costo $O(m)$ di tempo di raddoppio o dimezzamento può essere virtualmente distrubuito tra le $m-1=\Omega (m)$ operazioni che lo hanno causato ottenendo una complessità ammortizzata di $O(1), ossia **virtualmente costante**
+
+**implementazione di base**
+
+La logica vista nell'estensione e riduzione del vettore dinamico richiede che per rappresentarlo sia necessario mantenere (e gestire) contemporaneamente 3 informazioni:
+- `a` il **puntatore** all' area di memora dell'array(primo elemento)
+- `n` la dimensione **logica** dell'array
+- `d` la dimensione **fisica** dell'array
+```
+float* allocaVettoreDinamico(int n, int*d)
+{
+   float* a = (float*)malloc(n*2*sizeof(float));
+   assert(a!=NULL)
+   *d = n*2;
+   return a;
+}
+
+```
+
+Ciò comporta che sia necessario, oltre che modificarle coerentemente, "portandosele dietro" in tutte le funzioni di manipolazione.
+
+**implementazione "ingegnerizzata"**
+
+Il probleda di gestire contemporaneamente più informazioni / variabili per rappresentare una struttura dati concreta è comune a tutte le strutture dati concrete
+- anche la più semplice di esse, ossia l'array soffre di questo problema
+
+Vorremmo rappresentare e gestire tutte le informazioni in un "contenitore" logico, che consente di accedere a ciascuna di esse ma che le tratti come un *unicum*
+- che costrutto di programmazione possiamo utilizzare per questo?
+
+#### array dinamici: descrittore
+
+Rappresentiamo tutte le informazioni che descrivono la struttura dati attraverso un **record**, detto **descrittore**, che combina insieme tutte le informazioni necessarie
+```
+typedef struct /*anonima*/
+{
+   //Puntatore allo spazio di memoria allocato per il vettore nell'heap
+   float *dati;
+   //Dimensione logica del vettore:Numero di elementi effettivi
+   int dimensione;
+   //Dimensione fisica del vettore: numero di elementi allocati nell'heap
+   int capacita;
+}vettore_dinamico;
+```
+
+**Convenzione** tutte le operazioni di manipolazione *restituiscono* il nuovo descrittore(esplicitamente o attraverso il passaggio per riferimento)
+
+**Nota**: l'istruzione `typedef <tipo> <nome_alias>` crea un alias per un determinato tipo di dato consentendo di omettere`struct <nome_struct>` quando dichiariamo le variabili
+
+**Funzioni di manipolazione**
+```
+vettore_dinamico creaVettoreDinamico(int n)
+{
+vettore_dinamico v;
+//non ha senso creare vettori con dim negativa
+assert(n>=0)
+if(n>0)
+{
+   //alloca lo spazio per i dati, memorizzando il puntatore del descrittore
+   v.dati = (float*)malloc(2* n * sizeof(float));
+   //verifica che l'allocazione abbia avuto buon esito
+   assert(v.dati != NULL)
+}
+else 
+   {
+      v.dati = NULL;
+   }
+v.dimensione = n;
+v.capacita = 2*n;
+return v;
+}
+
+```
+```
+void ridimensiona_vettore_dinamico(vettore_dinamico *v, int n)
+{
+   assert(n >= 0);
+    if(n>= v->capacita)
+    {\\raddoppia
+      v-> dati = (float*)realloc(v->dati, 2*n*sizeof(float));
+      //verifica che la riallocazione abbia avuto buon esito
+      assert(v-> dati != NULL);
+      v->capacita = 2*n;
+    }else if(v-> capacita > 1 && n <= v-> capacità /4)
+    {//dimezza
+      // si osservi che v->capacita / 2 == n * 2 (perché n <= v->capacita / 4)
+      v-> dati = (float*)realloc(v->dati, 2*n*sizeof(float));
+      assert(v->dati != NULL);
+      v->capacita = 2*n;
+    }else if (v->capacita == 0 && n > 0)
+    {//passa da zero ad una dimensione diversa da zero
+     v->dati = (float*)malloc(2*n*sizeof(float));
+     assert(v->dati != NULL);
+     v-> capacita = 2*n;
+    }
+    v->dimensione = n;
+}
+
+```
+```
+void elimina_vettore_dinamico(vettore_dinamico *v)
+{//elimina dati
+   free(v->dati);
+   v->dimensione = 0;
+   v->capacita = 0;
+}
+
+void stampa_vettore_dinamico(vettore_dinamico v)
+{
+   int i;
+   for(i = 0; i < v.dimensione; i++)
+      prinf("%g", v.dati[i]);
+   if(v.dimensione > 0)
+      printf("\n");
+}
+```
+
+La definizione del descrittore e di queste funzioni è compresa nella libreria di **Strutture dati e Algoritmi** in un header chiamato `array.h`(disponibile su e-learning)
+
+**Considerazioni finali**
+
+Vantaggi:
+- Dimensione **veramente** dinamica
+- efficenza nelle operazioni di ridimensionamento di un'unità(quelle più tipiche) che richiedono tempo costante
+
+Limiti:
+- Necessità di mantenere più informazioni in modo coerente(comune anche agli array classici)
+- Vincolo **forte** sul tipo di dato contenuto nell'array
+  - in principio dovremmo definire un nuovo descrittore e "ricopiare il codice" delle funzioni per adattare i dati ad un altro tipo diverso da `float`
+  
+### Liste
+
+
