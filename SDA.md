@@ -865,3 +865,14 @@ Limiti:
 Una **lista** è l'implementazione concreta di una struttura dati *sequenza* ad **accesso sequenziale**.
 
 È rappresentata dall'indirizzo $a$ (del primo elemento della lista, detto **nodo**) e le altre posizioni sono sparse(a causa della gestione dinamica della memoria nell'heap)
+Struttura:
+-  $a$ indirizzo del primo elemento $a_0$
+-  l'elemento $a_j$ contiene il dato e l'indirizzo dell'elemento $a_{j+1}$(se esiste)
+```
+typedef struct _nodo_lista{
+   //dato contenuto nel nodo corrente
+   float dato;
+   //successore del nodo corrente(NULL in caso non esista)
+   struct _nodo_lista *succ;
+}nodo_lista;
+```
