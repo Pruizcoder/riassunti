@@ -862,4 +862,6 @@ Limiti:
   
 ### Liste
 
+Una **lista** è l'implementazione concreta di una struttura dati *sequenza* ad **accesso sequenziale**.
 
+È rappresentata dall'indirizzo $a$ (del primo elemento della lista, detto **nodo**) e le altre posizioni sono sparse(a causa della gestione dinamica della memoria nell'heap)
