@@ -5,9 +5,7 @@
   - [indice](#indice)
   - [01 - Organizzazione della memoria, chiamate di funzioni, ricorsione](#01---organizzazione-della-memoria-chiamate-di-funzioni-ricorsione)
     - [L'organizzazione della memoria](#lorganizzazione-della-memoria)
-  - [-se lo stack e l'heap s'incontrano si verifica un' errore di memoria(stack/heap overflow)](#-se-lo-stack-e-lheap-sincontrano-si-verifica-un-errore-di-memoriastackheap-overflow)
     - [Record di attivazione](#record-di-attivazione)
-  - [E' come una scatola chiusa, la funzione può fare tutto chiò che vuole senza interferire con l'ambiente di altre funzioni.](#e-come-una-scatola-chiusa-la-funzione-può-fare-tutto-chiò-che-vuole-senza-interferire-con-lambiente-di-altre-funzioni)
     - [La ricorsione](#la-ricorsione)
       - [Esempio di codice dell' algoritmo del pracheggio](#esempio-di-codice-dell-algoritmo-del-pracheggio)
       - [Altri esempi di funzioni ricorsive](#altri-esempi-di-funzioni-ricorsive)
@@ -29,6 +27,9 @@
       - [Ordini di Complessità](#ordini-di-complessità)
       - [Analisi strutturale](#analisi-strutturale)
         - [Guida per il calcolo del costo al caso pessimo](#guida-per-il-calcolo-del-costo-al-caso-pessimo)
+  - [03 - Sequenze lineari e allocazione dinamica della memoria](#03---sequenze-lineari-e-allocazione-dinamica-della-memoria)
+    - [Sequenze lineari](#sequenze-lineari)
+    - [Allocazione dinamica della memoria](#allocazione-dinamica-della-memoria)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -59,12 +60,14 @@
 5. **Free memory**
    - è la memoria libera tra lo stack e l'heap
    -se lo stack e l'heap s'incontrano si verifica un' errore di memoria(stack/heap overflow)
+   
 ---
 ### Record di attivazione
    Ogni funzione crea un suo spazio di memorizzazione specifico nello stack chiamato **record di attivazione**.
    Esso include tutte le variabili locali, i parametri ed i valori di ritorno della funzione.
 
    E' come una scatola chiusa, la funzione può fare tutto chiò che vuole senza interferire con l'ambiente di altre funzioni.
+   
 ---
 ### La ricorsione
 La ricorsione è una tecnica di programmazione, ma anche uno strumento per risolvere problemi.
@@ -549,3 +552,20 @@ $$
 \mathbb{E}[T(n)]\approx(1-\frac{2}{e})n^2=O(n^2)
 $$
 
+---
+
+## 03 - Sequenze lineari e allocazione dinamica della memoria
+
+### Sequenze lineari
+
+- Sono delle **strutture di dati astratte** costituite da $n$ elementi $a_0, a_1,\dots, a_{n-1}$ dove $a_j$ è il $(j+1)$-esimo elemento, $0\leq j \leq n-1$
+- É in genere rilevante il loro ordine relativo
+- Duen modalità di accesso:
+  - *diretto*: dato $j$ si accede solo ad $a_j$(**array**)
+  - *sequenziale*: dato $j$ è necessario accedere ad $a_0, a_1,\dots, a_{j-1}$  per poi accedere ad $a_j$(**liste**)
+    - modalità di elaborazione, in un certo senso simile a quello dei file.
+Prima però è da considerare un altro argomento
+
+### Allocazione dinamica della memoria
+La gestione dell' **heap** da parte del programmatore avviene, in C, attraverso le seguenti funzioni:
+-  `void* malloc(int n)`**alloca** nell' heap un numero di byte pari a `n` e restituisce l'indirizzo di memoria dello spazio allocato sottoforma di un puntatore *generico*
