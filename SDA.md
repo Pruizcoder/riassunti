@@ -30,6 +30,9 @@
   - [03 - Sequenze lineari e allocazione dinamica della memoria](#03---sequenze-lineari-e-allocazione-dinamica-della-memoria)
     - [Sequenze lineari](#sequenze-lineari)
     - [Allocazione dinamica della memoria](#allocazione-dinamica-della-memoria)
+      - [Allocazione della memoria in C](#allocazione-della-memoria-in-c)
+    - [Array](#array)
+      - [array dinamici](#array-dinamici)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -569,3 +572,143 @@ Prima però è da considerare un altro argomento
 ### Allocazione dinamica della memoria
 La gestione dell' **heap** da parte del programmatore avviene, in C, attraverso le seguenti funzioni:
 -  `void* malloc(int n)`**alloca** nell' heap un numero di byte pari a `n` e restituisce l'indirizzo di memoria dello spazio allocato sottoforma di un puntatore *generico*
+-  `void   free(void*)` **dealloca** lo spazio di memoria iniziallmente puntato dal puntatore passato come parametro
+
+Il valore restituito è di tipo `void*`:
+- questa scelta è stata fatta per rendere indipendente la funzione dal tipo di dato allocato (la funzione riserva `n` bytes per il programma)
+- per poter utilizzare proficuamente quell'area di memoria sarà necessario convertire il `void*` nel tipo opportuno(ad esempio `int*`, se destinato ad interi, ecc.)
+
+#### Allocazione della memoria in C
+
+Cme specifiare a `malloc` di quanti byte occuperò senza dover ricordarmi la dimensione di ogni tipo di dato?
+- posso utilizzare la funzione `sizeof(<tipo_di_dato>)` che restituisce il numero di byte necessari per memorizzare il tipo di dato passato come parametro(es.: `sizeof(int)` restituirà il numero di byte recessari per memorizzare un intero)
+
+Per elaborare dati in alcuni casi è anche necessario anche poter rappresentare un puntatore non inizializzato 
+- la constante simbolica `NULL`, di tipo puntatore, indica un puntatore che non punta a nessuna locazione di memoria
+
+**Esempio**: Dichiarazione di una variabile di tipo puntatore
+
+*istruzioni C*
+```
+int* p_a; // dichiarazione di una variabile di tipo puntatore (4 0 8 byte se 32 o 64bit)
+
+p_a = (int*)malloc(sizeof(int)); // richiesta di allocazione di memoria per un dato di tipo  intero
+
+/* viene creata una licazione di memoria nuova sull'heap(generica, ma di grandezza sufficente a
+   contenere un int) il cui indirizzo viene coinvertito ad un puntatore ad intero */
+
+*p_a = 5; // posso utilizzare la nuova memoria allocata attraverso il puntatore
+
+free(p_a);
+/* É responsabilità del programmatore liberare la memoria una volta che una variabile non è più necessaria (è imperativo farlo, altrimenti si creano **memory leaks** e il programma potrebbe esaurire rapidamente lo spazio a sua disposizione)
+
+```
+
+### Array
+
+La rappresentazione di un array avviene attraverso l'indirizzo `a` del suo *primo elemento*
+
+I suoi elementi sono memorizzati in posizioni **consecutive**, multiple della dimensione dei dati memorizzati(ad esempio 4 byte per elemento per un intero)
+
+- **vantaggi**: tempo di accesso costante
+- **svantaggi**: dimensione fissata, a meno del trucco di sovradimensionare l'array(dimensione *fisica* vs *logica*)
+
+![array](img\array.png)
+
+- `a` rappresenta l'indirizzo di `a[0]`, `a[j]`:`a`+`j`$\times$ dimensione elemento(=`a+j*4`)
+  - $\rightarrow$ Accesso all'elemento$a_j$ in tempo $O(1)$
+
+#### array dinamici
+
+Alcimo linguaggi di programmazione(C++, Java, Python, C#) prevedono array  che possono essere creati(e ridimensionati) dinamicamente, cerchiamo di farlo anche in C
+```
+float* allocaVettore(int n)
+{
+   float* a = (float*)malloc(n * sizeof(float));
+   assert(a!= NULL);
+   //la memoria potrebbe non essere allocata e si dovrebbe gestire l'errore
+   reuturn a;
+}
+void dealloca_vettore(float* a)
+{
+free(a);
+a = NULL;
+}
+```
+La funzione `alloca__vettore` restituisce "il vettore" appena allocato(attraverso il puntatore al suo primo evento)
+- ciò è possibile perchè il vettore è alloato nell'heap
+- non sarebbe corretto se il vettore fosse dichiarato come variabile locale della funzione(e, di conseguenza, allocato sullo stack), perchè quando la funzione termina la memoria viene rilasciata.
+
+
+L'operazione caratteristica degli array dinamici è quella di ridimensionamento:
+```
+float* ridimensiona_vettore(float* a, int n, int d)
+{
+/*la funzione realloc alloca un nuovo spazio di memoria e copia i valori precedentemente memorizzati nell' array:
+richjede tempo O(min{n,d}), pari al numero di elementi da copiare
+*/
+float* a = (float*)realloc(a,d * sizeof(float));
+assert(a!=NULL);
+return a;
+}
+```
+
+Il codice di `realloc()` coincide, **concettualmente**, con (i) un'allocazione di un nuono vettore, (ii)la copia dei valori precedentemente memorizzati nel vettore originale e (iii) la deallocazione del vettore originale.
+
+**Osservazione** $d$ può essere più grande o più piccolo di $n$ a seconda che vogliamo estendere o ridurre il vettore originario
+
+L'operazione tipica di ridimensionamento su di un array è quella di aggiunta o di eliminazione di una posizione *in fondo* all'array
+
+- Aggiunta di un nuovo elemento:
+  - Alloca lo spazio per un nuovo array $b$ di dimensione $n+1:O(1)$
+  - Copia gli elementi di $a$ in $b$: $O(n)$
+  - Dealloca $a$ dalla memoria: $O(1)$
+  - Ridenomina $b$ come $a$: $O(1)$
+- Rimozione di un elemento esistente
+  - Alloca lo spazio per un nuovo array $b$ di dimensione $n-1:O(1)$
+  - Copia gli elementi da $a$ in $b$: $O(n-1)= O(n)$
+  - Dealloca $a$ dalla memoria: $O(1)$
+  - Ridenomina $b$ come $a$: $O(1)$
+
+**Inefficente**: richiede tempo totale $O(n)$
+
+**Approccio ammortizzato**
+
+È possibile ottenere qualcosa di più efficente quando le operazioni di inserimento/cancellazione degli elementi in fondo all' array sono più di una?
+
+**Idea**: usiamo un *sovradimensionamento* come per gli array memorizzati sullo stack(lasciando degli elementi **fisici** liberi per ulteriori operazioni)
+- per ciascun array necessitiamo di mantenere due informazioni dimensionali:
+  - $n$, il numero di elementi significativi(**dimensione logica**)
+  - $d>n$, il numero di elementi allocati in memoria, compresi quelli non utilizzati(**dimensione fisica**)
+- in particolare decidiamo di effetturare operazioni di aumento o diminuzione raddoppiando o dimezzando la dimensione dell'array(di seguito il perché)
+
+```
+//estende il vettore di un elemento
+float* estendiVettore (float a[], int* n, int*d)
+{
+*n = *n +1;
+if (*n >=*d)
+{//raddoppio
+   a = ridimensionaVettore(a, *d, 2*(*d));
+   *d = 2* (*d);
+
+}
+return a;
+}
+float* riduciVettore(float a[], int* n, int*d)
+{
+   *n = *n -1;
+   if(*d > 1 && n <= d / 4)
+   {//dimezzamento
+      a = ridimensiona_vettore(a, *d, *d/2);
+      *d = *d / 2; 
+   }
+return a;
+}
+
+```
+
+Con un **raddoppio**, $n=d$ elementi sono copiati nell'array ridimensionato a $2d$ elementi:
+occorrono almeno antri $n$ estensioni prima che sia necessario un ulteriore raddoppio
+
+![estensione_vettore](img\estensioneVettore.png)
