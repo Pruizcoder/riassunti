@@ -61,7 +61,18 @@
     - [Limite inferiore di complessità dell' ordinamento](#limite-inferiore-di-complessità-dell-ordinamento)
   - [05 - Pile e code](#05---pile-e-code)
     - [Pile](#pile)
+      - [**Implementazione con array**](#implementazione-con-array)
+      - [**implementazione con lista**](#implementazione-con-lista)
     - [Code](#code)
+      - [Code con array: implementazione](#code-con-array-implementazione)
+    - [Code di priorità](#code-di-priorità)
+      - [Code di priorità con lista: implementazione](#code-di-priorità-con-lista-implementazione)
+  - [07 - Alberi e Heap tree, code di priorità](#07---alberi-e-heap-tree-code-di-priorità)
+    - [Alberi](#alberi)
+    - [Nodi](#nodi)
+    - [Alberi generici, $k$-ari, binari](#alberi-generici-k-ari-binari)
+    - [Alberi: implementazione](#alberi-implementazione)
+      - [Alberi completi e bilanciati](#alberi-completi-e-bilanciati)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -1434,7 +1445,7 @@ Collezioni di  elementi in cui le operazioni disponibili, come l'estrazione di u
   - `Empty(p)`: verifica se la pila è vuota
 
 
-**Implementazione con array**
+#### **Implementazione con array**
 
 - Elementi della pila memorizzati in un array di dimesione iniziale predefinita
 - Array ridimensionato per garantire che la dimensione sia proporzionale al numero di elementi effettivamente nella pila
@@ -1451,7 +1462,7 @@ Dopo `Push(p,1)`,·`Push(p,3)`
 
 ![push](img\push.png)
 
-**implementazione con lista**
+#### **implementazione con lista**
 
 - Elementi della pila memorizzati in una lista ordinata per istante di inserimento decrescente
 - La cima della pila corrisponde all'inizio della lista
@@ -1478,3 +1489,125 @@ Politica di accesso **First In First Out(FIFO)**: il primo elemento inserito è 
   - `Enqueue(q,d)`: inserisce un nuovo elemento in fondo alla coda
   - `Dequeue(q)`: estrae l'elemento in testa alla coda(opzionalmente restituendo l'informazione in esso contenuta, non per noi)
   - `First(q)`: restituisce l'informazione contenuta nell'elemento in testa alla coda senza estrarlo
+  - `Empty(q)`: verifica se la coda è vuota o meno
+
+#### Code con array: implementazione
+
+- Elementi della coda memorizzati in un array di dimensione iniziale predefinita
+- Arrray ridimensionato per garantire che la dimensione sia proporzionale al numero di elementi effettivamente nella coda
+- Elementi memorizzati in sequenza nell'array a partire dalla locazione iniziale, inserendoli man mano nella prima locazione disponibile
+- La testa della coda corrisponde al primo elemento della sequenza 
+- Il fondo della coda corrisponde all'ultimo elemento della sequenza
+- Gestione "circolare" della coda
+
+![gestioneCircolare](img\gestioneCircolare.png)
+
+- Nodi concatenati e ordinati in modo crescente secondo l'istante di inserimento
+- Il primo nodo della sequenza corrisponde alla "testa" della coda ed è il nodo da estrarre nel caso di una `Dequeue`
+- l'ultimo nodo corrisponde al "fondo" della coda ed è il nodo a cui concatenare un nuovo nodo, inserito mediante `Enqueue`
+
+### Code di priorità
+
+- Collezioni di elementi in cui a ogni elemento è associato un valore(priorità) appartenente a un insieme totalmente ordinato (solitamente l'insieme degli interi positivi)
+- estensione della coda:le operazioni sono le stesse della coda: `Empty`, `Enqueue`, `First` e `Dequeue`
+- `First` restutuisce l'elemento di priorità massima(o minima)
+
+
+#### Code di priorità con lista: implementazione
+
+- Prima soluzione: *lista non ordinata*
+  - La `Enqueue` richiede tempo costante, con i nuovi elementi inseriti a un estremo della lista
+  - La `Dequeue` e la `First` richiedono tempo $O(n)$: perchè è necessario individuare l'elemento di priorità massima all'interno della lista
+- Seconda soluzione: *lsita ordinata*
+  - La `Dequeue` e la `First` richiedono tempo costante: l'elemento di massima priorità si trova in testa alla lista
+  - La `Enqueue` richiede tempo $O(n)$: i nuovi elementi vanno inseriti alla posizione corretta rispetto all'ordinamento
+
+Il costo delle operazioni è sbilanciato: vi è la necessità di un implementazione che lo renda più simile
+
+## 07 - Alberi e Heap tree, code di priorità
+
+### Alberi
+
+- Stuttura dati gerarchica, generazillazione delle liste, più successori per ciascun nodo, detti figli
+
+- **Nodo**: elemento dell'albero
+- **Arco**: collegamento tra due nodi
+- **Radice**: nodo che si trova al livello più elevato della gerarchia(non è figlio di alcun nodo)
+- **Foglia**:nodo che non ha figli
+- **Nodo interno**: odo intermedio fra la radice e le foglie
+- **Profondità**: distanza (in numero di archi) fra qualunque nodo e la radice
+- **Altezza**: profondità massima delle foglie
+
+### Nodi
+
+Nodi contenitori di informazione, senza perdita di generalità possono contenere dei dati  di tipo `float`
+
+Vedreno prossimamente quando tratteremo i dizionari, l'estensione al caso struttura *chiave/valore*
+
+### Alberi generici, $k$-ari, binari
+
+Gli alberi sono classificati attraverso il nuemero di figli
+- nel caso il numero di figli è arbitrario
+- altrimenti se è limitato al valore $k$ li chiamiamo alberi $k$-ari
+- se $k=2$ si dicono *binari* e i figli sono, tipicamente denominati `Sinistro(n)` e `Destro(n)`
+
+### Alberi: implementazione
+
+**Vettore di *puntatori* ai figli**
+
+```
+typedef struct _nodo{
+   float dato;
+   struct _nodo** figli;
+   int num_figli;
+   struct _nodo* padre; /* opzionale */
+
+}nodo_albero_generico
+```
+
+Osservare la notazione `struct _nodo**`, essa indica un puntatore(vettore) a puntatori
+
+Se $k$-ario, già conosciamo la lunghezza dell'array `figli`, altrimenti nel caso generale dovremmo aggiungere alla `struct` anche la lunghezza del vettore (ossia il numero di figli di ciascun nodo) 
+
+**Puntatore al primo figlio e lista di puntatori ai fratelli**
+```
+typedef struct _nodo{
+   float dato;
+   struct _nodo* primo_figlio;
+   struct _nodo* fratello;
+   struct _nodo* padre; /*opzionale*/
+}nodo;
+```
+
+**Puntatori sinistro e destro per i binari**
+
+```
+typedef struct _nodo{
+   float dato;
+   struct _nodo* sinistroM
+   struct _nodo* destro;
+   struct _nodo* padre;/* opzionale */
+}
+```
+#### Alberi completi e bilanciati
+
+
+Gli alberi binari sono interamente descritti da due puntatori, al figlio sinistro e al figlio destro del nodo corrente (con valore `NULL` se essi non esistono).
+
+- Un albero (binario) è detto **completo** se ogni nodo ha esattamente due figli, non vuoti
+- Un albero (binario) è detto **completamente bilanciato** se, oltre ad essere completo, tutte le foglie hanno la stessa profondità
+- Un albero (binario) di altezza $h$ è detto **completo a sinistra** se i nodi di profondità minore di $h$ formano un albero completamente bilanciato e se i nodi di profondita $h$ sono tutti accumulati a sinistra
+
+**Limite superiore all'altezza**
+
+L'altezza $h$ di un albero completamente bilanciato con $n$ nodi è $O(log\;n)$
+- un albero completamente bilanciato di altezza $h$ ha $2^h -1$ nodi interni e $2^h$ foglie: ne deriva che la relazione tra l'altezza h e il numero di nodi è la seguente:
+$$
+2^h-1+2^h=2^{h+1} -1 \text{ pertanto} h = log\, (n+1)-1
+$$
+
+inoltre se $h$ è l'altezza di un albero completo a sinistra con $n$ nodi, allora anche in questo caso $h = O(log\; n)$
+- se $m$ è il numero di nodi a profondità minore di $h$ si ha che
+$$
+h \leq log\,(m+1) -1 < log\, (n+1) -1 = O(log \;n)
+$$
