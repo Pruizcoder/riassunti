@@ -1,3 +1,4 @@
+
 # Riassunto di SDA
 
 ## indice
@@ -52,6 +53,15 @@
       - [Liste doppie](#liste-doppie)
       - [Liste doppie: operazioni](#liste-doppie-operazioni)
       - [Liste: Operazioni/complessità](#liste-operazionicomplessità)
+  - [04 - algoritmi di ordinamento](#04---algoritmi-di-ordinamento)
+    - [Selection sort](#selection-sort)
+    - [insertion sort](#insertion-sort)
+    - [Bubble sort](#bubble-sort)
+    - [riepilogo](#riepilogo)
+    - [Limite inferiore di complessità dell' ordinamento](#limite-inferiore-di-complessità-dell-ordinamento)
+  - [05 - Pile e code](#05---pile-e-code)
+    - [Pile](#pile)
+    - [Code](#code)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -1257,3 +1267,214 @@ Complessita temporale $T(n)$ delle operazioni con $n$ lunghezza corrente della l
 |            distruzione             |                   $O(n)$                   |                  $O(n)$                  |    $O(n)$    |
 
 
+## 04 - algoritmi di ordinamento
+
+**il problema dell' ordinamento**
+
+Data una **sequenza** di $n$ elementi e una loro relazione d'ordine $\leq$, disporre gli elementi **nell'array** in modo che risultino ordinati secondo la relazione $\leq$
+
+Nota:
+- la relazione d'ordine non è necessariamente quella crescente e dipende dal tipo di dato conenuto nel vettore, per ora considereremo interi e la relazione $\leq$ su di essi 
+- La sequenza non é necessariamente contenuta in un array (ipotesi necessaria ora per le conoscenze attuali)
+
+### Selection sort 
+
+**Idea**: al passo $i$ selezione l'elemento di rango $i$ ossia il minimo tra i rimanenti $n-i$ elementi e scambialo con l'elemento in posizione $i$
+
+![selection sort](img\selectionsort.png)
+
+**Nota**: il rango di un elemento del vettore è costituito dal numero di elementi più piccoli di esso che corrisponde alla sua posizione nel vettore ordinato
+
+```
+void selection_sort(int a[], int n){
+   int i, indice_minimo;
+   for(i = 0, i< n-1; i++){
+      indice_minimo = minimo_a_partire_da(a,n,i);
+      scambia(&a[i], &a[indice_minimo];)
+   }
+}
+
+int minimo_a_partire_da(int a[], int n, int i){
+   int j, m = i;
+   for (j = i + 1;j<n; j++){
+      if(a[j] < a[m])
+         m = j;
+   }
+   return m;
+}
+
+```
+
+A meno di componenti di costo costante, al passo $i$-esimo il costo del corpo del `for` è pari al costo $t(i,n)$ della chiamata della funzione `minimo_a_partire_da()`
+-  esso non è costante ma dipende da $i$(oltre che da $n$)
+-  dunque il costo totale è pari a $\sum^{n-1}_{i=0}t(i,n)+O(1)$
+
+Il costo della funzione t(i,n) in dipendenza di $i$ è proporzionale al numero di iterazioni del ciclo(più l'assegnamento esterno) quindi $t(i,n)=O(n-i)$
+
+Pertanto
+$$
+T(n) = \sum^{n-2}_{i=0}O(n-i)+O(1)= O(\sum^{n-2}_{i=2}n-i)=O(\sum^{n-2}_{i=2}i)= O(n^2)
+$$
+
+A causa del calcolo del minimo fra gli elementi rimasti anche la complessità del caso migliore è $O(n^2)$(e quindi anche nel caso medio)
+
+### insertion sort
+
+**Idea** al passo $i$-esimo inserisci l'elemento in posizione $i$ al posto giusto tra i primi $i$ elementi(già ordinati)
+
+
+![InsertionSort](img\insertionSort.png)
+```
+void insertion_sort(int a[], int n){
+   int i, j , prossimo;
+   for (i = 1, i <n; i++){
+      //estrae il prossimo elemento da inserire
+      prossimo = a[i];
+      //j è la posizione candidata all'inserimento
+      j=i;
+      //verifica se la posizione corrente è quella giusta
+      while(j > 0 && a[j - 1] > prossimo){
+         //altrimenti fai spazio;
+         a[j]= a[j-1];
+         j = j - 1;
+      }
+      a[j] = prossimo;
+   }
+}
+
+```
+
+Per poter inserire in un qualunque punto fra gli elementi già ordinati devo fare spazio (non posso modificare un vettore creando un elemento in un punto qualunque)
+
+Il ciclo `while`, se necessario, sposta gli elementi verso destra per fare spazio al prossimo elemento da inserire
+
+Al passo $i$ del `for` esterno il costo è dominato dal costo $t(i)$ del ciclo `while` interno
+- il ciclo `while` richiede al massino $i+1$ iterazioni, ciascuna di costo costante
+  - $t(i) = O(i+1)$ per il ciclo while
+
+In totale $\sum_{i=0}^{n-1}O(i+1)= O(\sum_{i=0}^{n-1}i+1)=O\frac{n(n+1)}{2}= O(n^2)$
+
+**Osservazione**:l'algoritmo richiede solo $O(n)$ operazioni quando l'array è già ordinato
+   In generale è possibile provare che l'algoritmo richiede tempo $O(nk)$ se ciascun elemento si trova al più a distanda $k$ dalla sua posizione nell'array ordinano(quindi parecchio efficente per array quasi ordinati)
+
+### Bubble sort
+
+**Idea**:confrontare gli elementi a coppie e fare salire i valori più grandi verso la fine dell'array(e scendere quelli più piccoli verso l'inizio)
+
+![bubble sort](img\BubbleSort.png)
+```
+void bubble_sort(int a[], int n){
+
+int i, k = n - 1;
+bool scambio = true;
+while(scambio){
+scambio = false;
+for (i = 0; i < k; i++)
+   if(a[i]> a[i+1]){
+      scambia(&a[i], &a[i+1])
+      scambio = true;
+   }
+   k = k - 1;
+}
+}
+
+```
+
+All'iterazione $i=1, \dots,n$ del ciclo `while` l'elemento di posizione $n-i=k$ sarà salito nella sua posizione definitiva
+- la porzione di vettore compresa fra gli indici $k$e $n-1$ è ordinata
+- Al passo $k$ del ciclo `while` il costo del suo corpo$t(k)$ è dominato dal ciclo for interno che richiede tempo $O(k)$
+
+Il corpo del ciclo `while` può essere eseguito al più $n$ volte (per $k=n-1,\dots$,0) quindi in totale
+$$
+T(n)= \sum_{k=0}^{n-1}t(k) =\sum_{k=0}^{n-1} O(k) = O(\sum_{k=0}^{n-1}k) = o(\frac{n(n-1)}{2})= O(n^2)
+$$
+
+Nel caso di un array già ordinato, il numero di operazioni svolte è $O(n)$, corrispondenti all'esecuzione del ciclo `for` che determina che nessuno scambio è necessario e in tal caso il ciclo `while` viene eseguito una volta sola.
+
+### riepilogo
+|   **Algoritmo**    |                                                **Idea**                                                 | **Caso Pessimo** | **Caso Ottimo** |
+| :----------------: | :-----------------------------------------------------------------------------------------------------: | :--------------: | :-------------: |
+| **Selection sort** | Cerco(seleziono) l'elemento minimo fra quelli rimasti da ordinare e lo scambio con l'elemento corrente  |     $O(n^2)$     |    $O(n^2)$     |
+| **Insertion Sort** |                Cerco di inserire l'elemento corrente fra quelli precedenti, già ordinati                |     $O(n^2)$     |     $O(n)$      |
+|  **Bubble sort**   | Effettuo più passaggi facendo *affiorare* gli elementi più grandi, finchè non sono necessari più scambi |     $O(n^2)$     |     $O(n)$      |
+
+è possibile fare di meglio?
+### Limite inferiore di complessità dell' ordinamento
+
+Qual'è, nel caso peggiore, il **numero minimo di operazioni** richieste da un qualunque algoritmo di ordinamento basato sul confronto di elementi?
+
+- il cuore degli algoritmi di ordinamento sono le operazioni di confronto, contiamo quindi tali operazioni
+- Consideriamo un qualunque algoritmo di ordinamento $\mathcal{A}$ che usa confronti tra coppie di elementi
+
+In $t$ confronti (*passi,operazioni*), $\mathcal{A}$ può discernere sl più $2^t$ situazioni distinte:
+- sono infatti possibili due risposte per ogni confronto: $a_i\leq a_j$, oppure $a_i > a_j$
+
+Il numero di possibili ordinamenti di $n$ elementi é $n!$(tutte le loro permutazioni)
+
+Poiche $\mathcal{A}$ deve discernere tra $n!$ possibili situazioni, deve valere $2^t\geq n!$, pertanto, risolvento in $t$
+
+$$
+t= log 2^t \geq log \underbrace{n!}_{\sqrt{2\pi n}(\frac{n}{e})^n}  = log \;O(n^n) = O (n\,log\,n)
+
+
+$$
+
+Dunque t = $\Omega(n\;log\,n)$(perchè $t\geq O(f(n))$) è un limite inferiore alla complessità di qualunque algoritmo di ordinamento basato sui confronti
+
+## 05 - Pile e code
+
+### Pile
+
+Collezioni di  elementi in cui le operazioni disponibili, come l'estrazione di un elemento sono ristrette unicamente a quello più recentemente inserito
+- Politica di accesso **Last In First Out(LIFO)**: l'ultimo elemento inserito è il primo ad essere estratto
+- Operazioni:
+  - `Push(p,d)`: inserisce un nuovo elemento in cima alla pila
+  - `Pop(p)`: estrae l'elemento in cima alla pila (opzionalmente restituendo l'informazione in esso contenuta, non per noi)
+  - `Top(p)`: restituisce l'informazione contenuta nell'elemento in cima alla pila
+  - `Empty(p)`: verifica se la pila è vuota
+
+
+**Implementazione con array**
+
+- Elementi della pila memorizzati in un array di dimesione iniziale predefinita
+- Array ridimensionato per garantire che la dimensione sia proporzionale al numero di elementi effettivamente nella pila
+- Elementi  memorizzati in sequenza nell'array a partire dalla locazione iniziale, inserendoli man mano nella prima locazione disponibile
+- La cima della pila corrisponde all'ultimo elemento della sequenza
+
+![cima pila](img\cimapila.png)
+
+- dopo un `Pop(p)`
+
+![cimapila](img\pop.png)
+
+Dopo `Push(p,1)`,·`Push(p,3)`
+
+![push](img\push.png)
+
+**implementazione con lista**
+
+- Elementi della pila memorizzati in una lista ordinata per istante di inserimento decrescente
+- La cima della pila corrisponde all'inizio della lista
+- Le operazioni agiscono tutte sull'elemento iniziale della lista
+
+
+![pila lista](img\pilalista.png)
+
+- dopo un `Pop(p)`
+
+![poplista](img\poplista.png)
+
+- dopo `Push(p,1)`,`Push(p,3)`,`Push(p,11)`
+  
+![pushlista](img\pushlista.png)
+
+### Code
+
+Collezione di elementi in cui le operazioni disponibili, come l'estrazione di un elemento, sono ristrette unicamente a quello inserito meno recentemente
+
+Politica di accesso **First In First Out(FIFO)**: il primo elemento inserito è il primo ad essere estratto
+
+- Operazioni
+  - `Enqueue(q,d)`: inserisce un nuovo elemento in fondo alla coda
+  - `Dequeue(q)`: estrae l'elemento in testa alla coda(opzionalmente restituendo l'informazione in esso contenuta, non per noi)
+  - `First(q)`: restituisce l'informazione contenuta nell'elemento in testa alla coda senza estrarlo
