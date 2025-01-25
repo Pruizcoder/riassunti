@@ -73,6 +73,10 @@
     - [Alberi generici, $k$-ari, binari](#alberi-generici-k-ari-binari)
     - [Alberi: implementazione](#alberi-implementazione)
       - [Alberi completi e bilanciati](#alberi-completi-e-bilanciati)
+    - [Heap tree](#heap-tree)
+      - [Heap tree: rappresentazione implicita in array](#heap-tree-rappresentazione-implicita-in-array)
+      - [Code di priorità tramite Heap tree](#code-di-priorità-tramite-heap-tree)
+      - [complessità delle operazioni](#complessità-delle-operazioni)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -1611,3 +1615,48 @@ inoltre se $h$ è l'altezza di un albero completo a sinistra con $n$ nodi, allor
 $$
 h \leq log\,(m+1) -1 < log\, (n+1) -1 = O(log \;n)
 $$
+
+### Heap tree
+
+Un **Heap tree** è un albero *binario completo a sinistra* che soddisfa la seguente proprietà (**heap property**):
+1. è un albero vuoto oppure se `r` è la sua radice e `v_s` e `v_d` i suoi figli valgono `r->dato` $\geq$ `v_s->dato` e `r->dato` $\geq$ `v_d->dato`
+2. la proprietà vale ricorsivamente per i sottoalberi radicati in `v_s` e `v_d`
+
+
+![heaptree](img\heaptree.png)
+
+Dove si trova il massimo dei valori?
+
+
+#### Heap tree: rappresentazione implicita in array
+
+Un albero *binario* completo a sinistra con $n$ può essere rappresentato in un array $t$ di dimensione $n$ con le seguenti convenzioni:
+- $t[0]$ è il nodo radice
+- Dato un qualunque nodi $i$ dell'albero `Sinistro(i) = 2 * i + 1` e ` Destro(i) = 2 * i +2`, `Padre(i) =`$\lfloor$` (i-1)/2`$\rfloor$
+
+#### Code di priorità tramite Heap tree
+
+Il fatto che l'altezza di un heap tree sia logaritmica ci consente di effettuare le operazioni `Enqueue` e `Dequeue` in tempo $O(log \; n)$
+
+
+**`Enqueue`**
+1. inseriamo un nuovo `n` come foglia, mantenendo l'heap tree completo a sinistra
+2. confrontiamo la priorità del nodo `n` con quella del padre e scambiamo i due nodi se la *heap property* non vale (ovvero se `n` ha priorità maggiore di quella del padre)
+3. ripetiamo il punto 2 finchè non giungiamo ad un nodo per cui la *heap property* è soddisfatta oppure quando `n` è salito fino alla radice
+
+- Tempo $O(h) = O(log\; n)$, il numero di passi necessari per salire dalla foglia alla radice
+
+
+**`Dequeue`**
+
+1. Estraiamo l aradice(l'elemento di priorità più grande) e la scambiamo con la foglia più a destra `n` nell'ultimo livello(per mantenere l'heap teee completo a sinistra)
+2. confrontiamo la priorita del nodo `n` con quella dei suoi figli e scambiamo `n` con il figlio di priorità massima se la *heap property* non vale (ovvero se `n` ha la priorità inferiore di quella dei figli)
+3. ripetiamo il punto 2 finchè l l'*heap property* è soddisfatta oppure `n` è sceso fino ad una foglia
+
+- Tempo $O(h) = O(log\;n)$, il numero di passi necessari per far scendere la nuova radice fino ad una foglia
+
+#### complessità delle operazioni 
+
+L'esecuzione di $k$ operazioni `empty`, `first`, `enqueue` o `Dequeue` su un heap tree contenente inizialmente $m$ elementi richiede tempo $O(k\; log\; n)$ dove $n = m+k$
+
+**Dimostrazione**: `Empty` e `First` hanno, ovviamente, complessità costante, `Enqueue` deve verificare se l'array necessiti di essere raddoppiato (tuttavia la complessità ammortizzata è $O(1)$), inoltre ha bisogno di tempo $O(h)\leq o(log \; n)$
