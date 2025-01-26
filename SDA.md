@@ -77,6 +77,10 @@
       - [Heap tree: rappresentazione implicita in array](#heap-tree-rappresentazione-implicita-in-array)
       - [Code di priorità tramite Heap tree](#code-di-priorità-tramite-heap-tree)
       - [complessità delle operazioni](#complessità-delle-operazioni)
+  - [08 - heap sort](#08---heap-sort)
+    - [riepilogo degli allgoritmi visti](#riepilogo-degli-allgoritmi-visti)
+    - [Una variazione di selection sort](#una-variazione-di-selection-sort)
+    - [](#)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -1660,3 +1664,50 @@ Il fatto che l'altezza di un heap tree sia logaritmica ci consente di effettuare
 L'esecuzione di $k$ operazioni `empty`, `first`, `enqueue` o `Dequeue` su un heap tree contenente inizialmente $m$ elementi richiede tempo $O(k\; log\; n)$ dove $n = m+k$
 
 **Dimostrazione**: `Empty` e `First` hanno, ovviamente, complessità costante, `Enqueue` deve verificare se l'array necessiti di essere raddoppiato (tuttavia la complessità ammortizzata è $O(1)$), inoltre ha bisogno di tempo $O(h)\leq o(log \; n)$
+
+---  
+
+## 08 - heap sort
+
+### riepilogo degli allgoritmi visti
+
+|   **Algoritmo**    |                                                **Idea**                                                 | **Caso Pessimo** | **Caso Ottimo** |
+| :----------------: | :-----------------------------------------------------------------------------------------------------: | :--------------: | :-------------: |
+| **Selection sort** | Cerco(seleziono) l'elemento minimo fra quelli rimasti da ordinare e lo scambio con l'elemento corrente  |     $O(n^2)$     |    $O(n^2)$     |
+| **Insertion Sort** |                Cerco di inserire l'elemento corrente fra quelli precedenti, già ordinati                |     $O(n^2)$     |     $O(n)$      |
+|  **Bubble sort**   | Effettuo più passaggi facendo *affiorare* gli elementi più grandi, finchè non sono necessari più scambi |     $O(n^2)$     |     $O(n)$      |
+
+
+### Una variazione di selection sort
+
+Lo schema di selection sort può essere opportunamente modificato per funzionare anche con l'elemento massimo, anzichè quello minimo
+
+```
+void SelectionSortMax(int a[], int n){
+int indice_massimo, i;
+   for (int i = n - 1; i > 0; i--){
+      indice_massimo = CercaMassimoFinoA(a,n,i);
+      Scambia(&a[i], &a[indice_massimo]);
+   }
+
+}
+
+int CercaMassimoFinoA(int a[], int n, int i){
+   int j, m = 0;
+
+   for (j=1; j <= i; i++)
+      if(a[m] < a[j])
+      m = j;
+
+return m;
+}
+```
+
+La complessità è sempre $O(n^2)$
+
+In particolare, il contributo alla complessità totale della funzione di ricerca del massimo $t(n,i)$ è lineare in $i(t(n,i))= O(i)$
+
+È possibile diminuire tale complessità?
+- esiste una struttura dati che consente di estrarre l'elemento massimo in modo più efficente?
+
+### 
