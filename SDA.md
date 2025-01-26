@@ -80,7 +80,9 @@
   - [08 - heap sort](#08---heap-sort)
     - [riepilogo degli allgoritmi visti](#riepilogo-degli-allgoritmi-visti)
     - [Una variazione di selection sort](#una-variazione-di-selection-sort)
-    - [](#)
+    - [Heapsort: un algoritmo di ordinamento Ottimo](#heapsort-un-algoritmo-di-ordinamento-ottimo)
+    - [Heapsort: versione concettuale](#heapsort-versione-concettuale)
+    - [Heapsort: complessità](#heapsort-complessità)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -1710,4 +1712,38 @@ In particolare, il contributo alla complessità totale della funzione di ricerca
 È possibile diminuire tale complessità?
 - esiste una struttura dati che consente di estrarre l'elemento massimo in modo più efficente?
 
-### 
+### Heapsort: un algoritmo di ordinamento Ottimo
+
+**Idea**: uso lo stesso schema del **selection sort** ma sfruttando una struttura dati più efficente per ottenere il massimo di un insieme di valori: utilizzando un **heap tree**(cfr.coda di priorità)
+
+Schema concettuale:
+
+1. costruisco un heap tree con i valori del vettore aggiungendone gli elementi uno alla volta(è come se facessi `Enqueue` su una coda di priorità in cui il valore di priorità coincide con il dato dell'array)
+2. finchè ci sono elementi estraggo il massimo deall' heap tree e lo inserisco nella sua posizione definitiva nell'array ordinato(`Dequeue`)
+
+### Heapsort: versione concettuale
+
+```
+Heapsort(v,n):
+/* IN questa versione usiamo concettualmente tre strutture distinte:
+   1. l'array originale v,
+   2. una coda di priorità pq
+   3. un array destinazione r
+*/
+pq = CreaCodaPriorita();
+r = CreaArray (n);
+for (i = 0; i < n; i++)
+   Enqueue(pq, v[i]);
+for (i = n-1; i >= 0; i--)
+{
+   r[i] = First (pq);
+   Dequeue(pq);
+}
+/* r è il vettore ordinato*/
+```
+
+### Heapsort: complessità
+
+- $n$ operazioni di `Enqueue` nell'albero, ciascuna costa $O(log\;i) \subseteq O(log\;n)$, dunque questa parte costa $O(log\;n) = O(n\,log\;n)$
+- $n$ operazioni di `Dequeue` dall' albero, ciascuna delle quali ha  costo $O(log\;i)$, pertanto anceh questa parte costa $O(log\;n)$
+- la complessità complessiva dell' algoritmo è dunque $O(log\;n)$, ossia Heap sort è un algortimo di ordinamento **ottimo**
