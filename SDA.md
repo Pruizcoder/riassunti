@@ -83,6 +83,38 @@
     - [Heapsort: un algoritmo di ordinamento Ottimo](#heapsort-un-algoritmo-di-ordinamento-ottimo)
     - [Heapsort: versione concettuale](#heapsort-versione-concettuale)
     - [Heapsort: complessità](#heapsort-complessità)
+    - [Hap sort: implementazione *in-place*](#hap-sort-implementazione-in-place)
+  - [09 - divide et impera](#09---divide-et-impera)
+    - [Esempi di algoritmi divide et Impera](#esempi-di-algoritmi-divide-et-impera)
+      - [Ordinamento per fusione: merge sort](#ordinamento-per-fusione-merge-sort)
+        - [Pseudocodice](#pseudocodice)
+        - [equazione ricorsiva di complessità](#equazione-ricorsiva-di-complessità)
+    - [Teorema fondamentale delle ricorrente (master theorem)](#teorema-fondamentale-delle-ricorrente-master-theorem)
+      - [Analisi del MergeSort con il teorema fondamentale delle ricorrenze](#analisi-del-mergesort-con-il-teorema-fondamentale-delle-ricorrenze)
+    - [Ordinamento per distribuzione: QuickSort](#ordinamento-per-distribuzione-quicksort)
+      - [quicksort:complessità](#quicksortcomplessità)
+      - [Quickselect](#quickselect)
+        - [Analisi di complessità del Quickselect](#analisi-di-complessità-del-quickselect)
+    - [Altri esempi di divide et impera](#altri-esempi-di-divide-et-impera)
+      - [Moltiplicazione veloce di (grandi) interi](#moltiplicazione-veloce-di-grandi-interi)
+      - [Prodotto di interi: limite inferiore alla complessità](#prodotto-di-interi-limite-inferiore-alla-complessità)
+      - [Moltiplicazione veloce di interi](#moltiplicazione-veloce-di-interi)
+      - [Moltiplicazione veloce di interi](#moltiplicazione-veloce-di-interi-1)
+      - [Moltiplicazione veloce di interi](#moltiplicazione-veloce-di-interi-2)
+    - [Algoritmi ricorsivi su alberi](#algoritmi-ricorsivi-su-alberi)
+      - [Esempio: contare i nodi](#esempio-contare-i-nodi)
+      - [Esempio: calcolo della profondità](#esempio-calcolo-della-profondità)
+      - [Esempio: visita anticipata](#esempio-visita-anticipata)
+      - [Esempio di funzione di elaborazione](#esempio-di-funzione-di-elaborazione)
+      - [Visita simmetrica e posticipata](#visita-simmetrica-e-posticipata)
+      - [Algoritmi su alberi: complessità](#algoritmi-su-alberi-complessità)
+  - [10 - dizionari e le loro implementazioni](#10---dizionari-e-le-loro-implementazioni)
+    - [Motivazioni](#motivazioni)
+    - [Dizionari](#dizionari)
+      - [izionari: struttura del dato](#izionari-struttura-del-dato)
+      - [dizionario: operazioni di base](#dizionario-operazioni-di-base)
+      - [implementazione con sequenze lineari](#implementazione-con-sequenze-lineari)
+    - [Alberi binari di ricerca](#alberi-binari-di-ricerca)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -1747,3 +1779,654 @@ for (i = n-1; i >= 0; i--)
 - $n$ operazioni di `Enqueue` nell'albero, ciascuna costa $O(log\;i) \subseteq O(log\;n)$, dunque questa parte costa $O(log\;n) = O(n\,log\;n)$
 - $n$ operazioni di `Dequeue` dall' albero, ciascuna delle quali ha  costo $O(log\;i)$, pertanto anceh questa parte costa $O(log\;n)$
 - la complessità complessiva dell' algoritmo è dunque $O(log\;n)$, ossia Heap sort è un algortimo di ordinamento **ottimo**
+
+### Hap sort: implementazione *in-place*
+
+```
+void heap_sort(float a[], int n)
+{
+   int i;
+   for (i = 0; i<n; i++)
+   {
+   // di fatto  è equivalente ad effettuare un Enqueue()
+      _hs_riorganizza_heap_enqueue(a, i+1, i);
+   }
+    i = n-1;
+    while (i >  0){
+      // e le due istruzioni seguenti sono equivalenti ad effettuare un Dequeue()
+      _scambia(&a[0], &a[i]);
+       i = i-1;
+      _hs_riorganizza_heap_dequeue(a, i+1);
+
+    }
+
+}
+```
+
+```
+void _hs_riorganizza_heap_enqueue(float a[], int n, int i){
+   /*Enqueue*/
+   while(i > 0 &&  a[i] > a[_hs_padre(i)]){
+      _scambia(&a[i], &a[_hs_padre(i)]);
+      i = _hs_padre(i);
+   }
+}
+
+void _hs_riorganizza_heap_dequeue(float a[], int n){
+   int i = 0;
+   /*Dequeue*/
+   while(_hs_sinistro(i) < n && i != _hs_migliore_padre_figli(a ,n ,i)){
+      int figlio_migliore = _hs_migliore_padre_figli(a ,n ,i);
+      _scambia(&a[i], &a[figlio_migliore]);
+      i = figlio_migliore;
+   }
+}
+
+```
+
+```
+int _hs_migliore_padre_filgi(float[a], int n, int i){
+   int k = i;
+   if(_hs_sinistro(i) < && a[k] < a[_hs_sinistro(i)])
+      k = _hs_sinistro(i);
+   if(_hs_destro(i) < && a[k] < a[_hs_destro(i)])
+      k = _hs_destro(i);
+   return k;
+}
+```
+
+```
+int _hs_padre(int i){
+   return (i-1) / 2;
+}
+
+int _hs_sinistro(int i){
+   return 2 * i + 1;
+}
+
+int _hs_destro(int i){
+   return 2 * i + 2;
+}
+
+```
+
+---
+
+## 09 - divide et impera
+
+- Questo paradigma(**divide and conquer**) è una metodologia generale per la soluzione di problemi che fa uso della ricorsione ed è strutturata in tre fasi:
+  - **decomposizione**: identificazione di un (piccolo) numero di problemi dello stesso tipo, ciascuno definito su di un insieme di dati di dimensione inferiore a quello di partenza
+  - **ricorsione**: soluzione ricorsiva di ciascun sottoproblema fino ad ottenere sottoproblemi di dimensioni tali da poter essere risolti direttamente
+  - **ricombinazione**: combinazione delle soluzioni dei sottoproblemi per fornire una soluzione al problema di partenza
+
+### Esempi di algoritmi divide et Impera
+
+#### Ordinamento per fusione: merge sort
+
+:bulb: **Idea**: decomporre il problema dell'ordinamento di una sequenza nel modo seguente:
+
+- **decomposizione**: se la sequenza di due elementi viene divisa in due sotto-sequenze di lunghezza uguale(o quasi, a meno di un elemento)
+1. *dividi a metà l'array*
+- **ricorsione**: le due sottosequenze sono ordinate ricorsivamente applicando lo stesso algoritmo
+2. *Ordina separatamente le due metà*
+- **ricombinazione**: le due sottosequenze ordinate sono fuse(*merge*) in una sequenza ordinata
+*3. FOndi le due metà*
+
+##### Pseudocodice
+
+```
+void merge_sort(float a[], int sinistra, int destra){
+   int centro;
+   //caso di base, sinistra == destra, vettore con un elemento
+      if(sinistra < destra){
+         centro = (sinistra + destra) / 2;
+         merge_sort(a,sinistra,centro);
+         merge_sort(a,destra ,centro+1);
+         merge(a, sinistra, centro, destra);
+      }
+}
+```
+**Idea per `merge()`: due mazzi di carte, ciascun mazzo ordinato
+1. confronta la carta in cima di un mazzo con quella in cima all'altro
+2. rimuovi la minima tra le due
+3. se un mazzo si svuota, prendi le rimanenti carte dell' altreo mazzo nel loro ordine
+
+Ad ogni confronto sistemiano una carta nella sequenza ordinata (tempo $O(n)$)
+
+**funzione `merge`**
+```
+void merge(float a[], int sinistra, int destra, int centro){
+   int i, k, k, n = destra - sinistra + 1;
+   float *b = (float*)malloc(n*sizeof(float));
+   i = sinistra; j= centro +1; k = 0;
+   while (i<= centro && j <= destra){
+      if (a[i] <= a[j]){
+         b[k] = a[i]; i++;
+      }else{
+         b[k] = a[j], j++
+      }
+      k++
+   }
+   for (; i<= centro; i++,k++){
+      b[k] = a[i];
+   for(; j<= destra; j++, k++)
+      b[k] = a[i];
+   }
+   //ricopia gli elementi da b ad a
+   for(i = sinistra; i<= destra; i++)
+      a[i] = b[i-sinistra];
+   free(b);
+}
+```
+
+##### equazione ricorsiva di complessità
+
+$$
+T(n) = \begin{cases}
+O(1) \quad  se \; n\leq 1 \\
+\underbrace{2T(\frac{n}{2})}_{chiamate\, ricorsive} \quad \underbrace{+O(n)}_{merge} \quad se \; n > 1
+\end{cases}
+$$
+
+### Teorema fondamentale delle ricorrente (master theorem)
+
+Data la relazione di ricorrenza
+$$
+
+T(n) = \begin{cases}
+O(1) \quad se \; n\leq n_0 \\
+\underbrace{\alpha T(\frac{n}{\beta})}_{chiamate\, ricorsive} \quad \underbrace{+O(f(n))}_{merge} \quad se \; n > n_0
+\end{cases}
+$$
+
+con $f(n)$ non decrescente, $\alpha \geq 1$ e $\beta > 1$
+
+Se esistono due costanti $\gamma > 0$ e $n_0^\prime$ tali che $\alpha f(\frac{n}{\beta}) = \gamma f(n)$ per ogni $n \geq n_0^\prime$ allora la relazione di ricorrenza ha le seguenti soluzioni:
+
+1. $t(n) = O(f(n)) se \gamma < 1$
+2. $T(n) = O(f(n) log_\beta n) $ se $\gamma = 1$
+3. $t(n) = O(n^{log_\beta \ \alpha}$ se $\gamma > 1$
+
+#### Analisi del MergeSort con il teorema fondamentale delle ricorrenze
+
+- $\alpha = 2, \beta = 2, f(n) = n$ non decrescente
+
+Proviamo a risolvere l'equazione in $\gamma$ e $n_0^ \prime$:
+
+$$
+\alpha f(\frac{n}{\beta}) = \gamma f(n) = 2f(\frac{n}{2}) = 2 * \frac{n}{2} = n
+$$
+
+Si ha che, $\alpha f(\frac{n}{\beta}) = n = \gamma \cdot f(n)$ per $\gamma = 1 \;e\; \forall n > n_0^\prime$
+
+È dunque applicabile il secondo caso del teorema e la complessità è pertanto
+$$
+O(f(n)log_\beta \,n) = O(nlog_{\cancel{2}} n)
+$$
+
+### Ordinamento per distribuzione: QuickSort
+
+```
+void quick_sort(float v[], int sinistra, int destra){
+   int pivot, rango;
+   if (sinistra < destra){
+      /* scegli pivot, ad esempio l'elemento a destra*/
+      pivot = destra;
+      rango = distribuzione(v, sinistra, pivotm destra);
+      quick_sort(v,sinistra, rango -1);
+      quick_sort(v, rango +1, destra);
+
+   }
+}
+```
+
+**distribuzione**
+```
+int distrubuzione(float v[], int sinistra, int pivot, int destra){
+   if (pivot != destra)
+      scambia(&v[pivot], &v[destra]);
+   i = sinistra;
+   j = destra - 1;
+   while (i <= j){
+      while ((i <= j) && (v[i] <= v[destra]))
+         i++;
+      while ((i <= j) && (v[i] >= v[destra]))
+         j--;
+      if (i< j){
+         scambia (&v[i], &v[j]);
+         i++; j--;
+      }
+   }
+if (i != destra)
+   scambia(&v[i], &v[destra]);
+
+   return i;
+}
+```
+
+#### quicksort:complessità
+
+$$
+T(n) = \begin{cases}
+O(1) \quad se\; n \leq 1 \\
+T(r) + T(n-(r + 1)) + O(n) se \; n > 1
+\end{cases}
+$$
+- **caso peggiore** $r = 0$ e in tal caso $T(n) = O(n^2)$(il caso peggiore avviene se l'array è già ordinato in senso inverso e si sceglie il pivot più a destra)
+
+Semplificando si ha:
+
+$$
+T(n) = \underbrace{T(0)}_{O(1)} + T (n-1) + O(n) = T(n-1) + O(n)
+$$
+
+e dunque 
+$$
+T(n) = \overbrace{T(n-1)}^{T(n-2)+c(n-1)} +cn = T(n-2) + c(n+(n-1)) =\dots = T(n-k) +c \sum_{i = 0}^{k} (n-i) = O(n^2)
+$$
+
+- caso migliore: $r = \frac{n}{2}$ e in tal caso $T(n) = 2T(\frac{n}{2})i O(n) = o(n\,log\;n)$
+- anche in un caso molto sbilanciato $T(n) = T(\frac{9}{10}n)+ T(\frac{1}{10}n)+ O (n)$ è possibile dimostrare che $T(n) = O(n\,log\;n)$
+- caso medio: è possibile provare che anche nel caso nedio la complessità è dell' ordine di $O(n\,log\;n)$
+per mitigare la complessità del caso pessimo introduciamo un po' di **casualità**: scegliamo un valore casuale dell' array come pivot
+- in questo modo il caso pessimo ha una probabilità infinitesima di accadere: si traterebbe di sbagliare tutte le scelte del pivot, con probabilità
+$$
+\frac{1}{n}\cdot \frac{1}{n-1}\cdot \dots \cdot \frac{1}{1} = \frac{1}{n!}
+$$
+
+#### Quickselect
+
+Una variante dell' algoritmo consente di trovare l'elemento di rango $r \in 0,1,\cdots n-1$ in tempo medio/ottimo $O(n)$: ad esempio per trovare l'elemento mediano(ovvero di rango $r = \frac{n}{2}$)
+```
+float quick_select(float v[], int sinistra, int r, int destra){
+   int pivot, rango;
+   if (sinistra == destra)
+      return v[sinistra];
+   pivot = destra;
+   rango = distribuzione (v, sinistra, pivot, destra);
+   if(rango == r)
+      return a[rango];
+   if (rango > r)
+      return quick_select(a,sinistra,r,rango-1);
+   else 
+      return quick_select(a, rango +1, r, destra);
+}
+
+```
+
+##### Analisi di complessità del Quickselect
+
+$$
+t(n) = 
+\begin{cases}
+   O(1) \quad se \; n \leq 1 \\
+   T(n-r-1) + O(n) se \; n > 1\\
+\end{cases}
+$$
+
+Analogamente al `QuickSort`, il caso peggiore avviene quando $r = 0$ e la distribuzione dei valori minori e maggiori del pivot è completamente sbilanciata. Anche in tal caso, per espansione di $T(n-1)$
+$$
+T(n) = T(n-1) + c\cdot n = (t(n-2)+c \cdot (n-1)) + c\cdot n \\= ((T(n-3)+c\cdot (n-2))+c \cdot (n-1)) + c\cdot n = \dots \sum_{i = 0}^{n-1}c\;\cdot (n-1) = O(n^2)
+$$
+
+Tuttavia, nel caso ottimo in cui la distribuzione di valori divida l'array in due party uguali, l'espressione è la seguente:
+
+$$
+T(n) = T(\frac{n}{2}) + O(n)\text{ se } n>1
+$$
+
+pertanto applicando il teorema del maestro si ottiene: $\gamma = \frac{1}{2}< 1 $ e dunque $T(n) = O(n)$
+
+Analogo risultato si ha anche nel caso più sfortunato in cui $T(n) = T(\frac{9}{10}n)+ O(n)$, perchè $\gamma = \frac{9}{10} <1 $ e dunque la complessità è la medesima.
+
+Per evitare il caso pessimo (che ha, analogamente, probabilità molto piccola), è utile, anche in questo caso, la randomizzazione.
+
+### Altri esempi di divide et impera
+
+#### Moltiplicazione veloce di (grandi) interi
+
+Vogliamo la rappresentazione e la manipolazione di numeri interi di dimensione arbitraria(oltre i limiti della rappresentazione interna binaria, tipicamente 64 bit)
+
+- possiamo rappresentare i numeri con la loro sequenza di cifre, ad esempio in un array
+- dobbiamo, però, definire gli algoritmi per le operazioni aritmetiche su di essi
+
+**Ridefinizione delle operazioni**
+
+**Somma**
+$$
+
+\begin{array}{r}
+   & 2134 \\
++  & 3784 \\
+\hline
+   & 5918 \\
+\end{array}
+$$
+Richiede tempo $O(max{n,m})$ con $n,m$ numero di cifre dei due numeri 
+**Prodotto**
+$$
+\begin{array}{r}
+   & 2134 \times 184 = \\
+   & \phantom{0} \ 8536 \\
+   & + 170720 \\
+   & +213400 \\
+\hline
+   & 392656 \\
+\end{array}
+
+$$
+Richiede $O(min(n,m)^2)$ con $n,m$ dimensioni dei due numeri
+
+#### Prodotto di interi: limite inferiore alla complessità
+
+**OSservazione**: il prodotto fra due numeri con $n$ cifre richiederà fino ad un massimo di $2n$ cifre per la sua rappresentazione
+
+Questa osservazione è anche un limite inferiore alla complessità del problema del  calcolo del prodotto, infatti, qualunque algoritmo andremo a definire, sarà necessario quantomeno determinare il valore di ciascuna di queste cifre che sono $O(2n) = O(n)$.
+
+Pertanto il limite inferiore di complessità del problema del calcolo del prodotto fra due numeri interi è $\Omega(n)$
+
+**C'è spazio per dei miglioramenti rispetto alla complessità $O(n^2) dell'algoritmo classico
+
+#### Moltiplicazione veloce di interi
+
+Dati due numeri interi rappresentati con sequenze di $n$ cifre(eventualmente con degli $0$ a completamento di quello meno lungo), calcolarne il prodotto
+
+Ogni numero intero $w$ può essere scritto cone $10^{\frac{n}{2}}\cdot w_s + w_d$ in cui le cifre sono partizionate in due metà
+- supponiamo, per semplificare l'analisi, che $n$ sia pari, ma nel caso non lo fosse si può sempre aggiungere uno $0$ in testa al numero aumentandone le cifre
+
+**Esempio**
+$$
+\lang 2,1,3,4\rang = 2134 = 10^2 \cdot 21 + 34 \text {e dunque  } w_s = \lang2,1\rang e w_d = \lang w_d\rang
+$$
+
+Dati due numeri $x$ e $y$ arbitrari di $n$ cifre, rappresentati attraverso la loro sequenza di cifre vale la seguente uguaglianza:
+
+$$
+
+x\cdot y = (10^{\frac{n}{2}}x_s+x_d)\cdot(10^{\frac{n}{2}}y_s+y_d) = 10^n \underbrace{x_s\cdot y_s}_{prodotto} + 10^{\frac{n}{2}}(\underbrace{x_s\cdot y_d}_{prodotto}+\underbrace{x_d\cdot y_s}_{prodotto})+ \underbrace{x_d \cdot y_d}_{prodotto}
+$$
+
+Possiamo applicare il paradigma **divide et impera** per la loro moltiplicazione:
+- **Decomposizione**: se i due numeri $x$ e $y$ hanno almeno due cifre, dividerli come $x_s, x_d$ e $y_s, y_d$ aventi ciascuno metà delle cifre
+- **ricorsione**: calcola ricorsivamente i prodotti $x_s \cdot y_s, x_s \cdot y_d, x_d \cdot y_s, x_d \cdot y_d$
+- **ricombinazione**: combina i risultati attraverso l'uguaglianza
+  - le operazioni di moltiplicazione per potenze di $10$ sono semplici spostamenti a sinistra nella sequenza, ovvero aggiunta di $0$ a destra
+  
+L'algoritmo esegue **quattro moltiplicazioni**(chiamate ricorsive) di numeri di $\frac{n}{2}$ cifre (a un costo $T(\frac{n}{2}$) e **tre somme** di  due numeri a $n$ cifre (a un costo O(n))
+
+La moltiplicazione per $10^k$ è uno spostamento di cifre e riempimento con $0$ e costa $O(k)$, quindi al massimo $O(n)$ nel nostro caso
+
+Il costo della decomposizione e ricombinazione è pertanto $O(n)$
+
+L'equazione di complessità è dunque:
+
+$$
+T(n)= 
+\begin{cases}
+O(1) \quad \text{se }n \leq 1 \\
+4T(\frac{n}{2})+ O(n) \quad \text{se } n > 1
+\end{cases}
+$$
+
+Risolviamo l'equazione con il teorema del maestro:
+$$
+T(n)= 
+\begin{cases}
+O(1) \quad \text{se }n \leq 1 \\
+4T(\frac{n}{2})+ O(n) \quad \text{se } n > 1
+\end{cases}
+$$
+
+$\alpha = 4, \beta = 2, f(n) = n$, risolviamo l'equazione in $\gamma $ (e $n_0^{\prime}$)
+
+$$
+\alpha f(\frac{n}{\beta}) = \gamma f(n)\forall \; n > n_0^{\prime} \\
+\text{ossia}\\
+\underbrace{\cancel{4}}_2 \frac{\cancel{n}}{\cancel{2}} = \gamma \;\cancel{n}\; \forall \;n > 0
+$$
+
+ne deriva che il caso del teorem applicabile è il 3: $O(n^{log_2 4}) = O(n^2)$
+
+**Non ci abbiamo guadagnato nulla**
+
+#### Moltiplicazione veloce di interi
+
+Osserviamo però che nell'uguaglianza:
+$$
+x \cdot y = 10^n x_s\cdot y_s + 10^{n/2}(x_s \cdot y_d + x_d \cdot y_s) + x_d \cdot y_d
+
+$$
+
+il valore del termine intermedio ($x_s \cdot y_d + x_d \cdot y_S$) può essere calcolato parendo dagli altri termini, specificatamente:
+
+$$
+x\cdot y = 10^m \underbrace{x_s \cdot y_s}_{\text{prototto}} + 10^{n/2}(\underbrace{x_s \cdot y_s}_{\text{già calcolato}}+ \underbrace{x_d \cdot y_d}_{\text{già calcolato}}+ \underbrace{((x_s -x_d)\cdot (y_s - y_d))}_{\text{prodotto}}+ \underbrace{x_d \cdot y_d}_{\text{prodotto}})
+$$
+
+Quindi il numero di prodotti (chiamate ricorsive) da calcolare diventa **tre**, mentre le somme (e sottrazioni) sono salite a **sei**
+
+#### Moltiplicazione veloce di interi
+ L'aggiunta di (un numero costante di) addizioni non ha effetti sull'equazione ricorsiva (il costo era $O(n)$ e rimane tale), tuttavia il fattore moltiplicativo nel numero di chiamate diminuisce:
+
+$$
+T(n) = 
+\begin{cases}
+   O(1) \quad \text{se }n \leq 1 \\
+   3T(\frac{n}{2})+ O(n) \text{se } n > 1 \\
+\end{cases}
+$$
+
+
+Risolvendo in $\gamma$ (e $n^{\prime}_0$) si ottiene $3\frac{\cancel{n}}{2}= \gamma \cancel{n} \forall n > 0 $ ovvero $\gamma = \frac{3}{2}$, il caso del teorema del maestro applicabile è sempre lo stesso, però: $O(n^{log_2 \;3}) = O(n^{1.585})$ che è più efficente di $O(n^2)$
+
+l'algoritmo in questa forma è chiamato anche **algoritmo di karatsuba** 
+
+### Algoritmi ricorsivi su alberi
+
+Gli alberi (binari) sono strutture inerentemente ricorsive: sono strutturari in forma di nodi che inducano due **sottoalberi** radicati come figlio sinistro e destro del nodo stesso
+
+Questa suddivisione è particolarmente adatta per un'approccio *divide et impera*:
+- la **decomposizione** consiste nei due sottoalberi(il caso di base è l'albero vuoto)
+- La **ricorsione** consiste nell'esecuzione in ciascuno dei due sottoalberi separatamente, ottenendo (al più) due risultati intermediù
+- La **ricomposizione** consiste nella combinazione dei due risultati
+
+
+Schema(in pseudocodice):
+```
+Decomponi(r):
+if(r == NULL)
+   return caso_base;
+risultato_sx = Decomponi(r->sinistro);
+risultato_dx = Decomponi(r-> destro);
+return Ricomponi(risultato_sx, risultato_dx);
+```
+
+Complessità:$T(n) = \begin{cases}
+   O(1) \quad \text{se }n = 0 \\
+   T(s) + T(n-s-1) + O(1) \quad \text{se } n > 0
+\end{cases} \text{con }s\text{ numero di nodi}$
+del sottoalbero sinistro (e di conseguenza $n-s-1$ sono i nodi del sottoalbero destro)
+
+#### Esempio: contare i nodi
+```
+int conda_nodi(nodi_albero* r){ // Decomponi
+int nodi_sx, nodi_dx;
+if (r == NULL)// caso base
+   return 0;
+nodi_sx = conta_nodi(r->sinistro); //Chiamata ricorsiva sx
+nodi_dx = conta_nodi(r->destro);//chiamata ricorsiva dx
+return nodi_sx + nodi_dx + 1;
+}
+```
+#### Esempio: calcolo della profondità
+Schema con parametro aggiuntivo, per accumulazione a partire dalla radice. L'altezza di un albero è il  numero massimo di archi (connessioni) dalla radice ad una foglia.
+
+```
+int altezza(nodo_albero* r, int a){ // decomponi
+int altezza_sx, altezza_dx;
+if(r == NULL)
+   return a-1;//l'arco per arrivare oltre l'albero non va contato
+altezza_sx = altezza(r->sinistro, a+1);
+altezza_dx = altezza(r->destro, a+1);
+return max(altezza_sx, altezza_sx);
+}
+
+ // Chiamata iniziale altezza (r, 0), con r radice dell'albero
+
+```
+#### Esempio: visita anticipata
+
+Schema di elaborazione di tutti i nodi dell' albero:
+```
+void visita_anticipata(nodo_albero* r, void(*elabora)(nodo_albero*)){
+   if (r == NULL)
+   return;
+   elabora(r);
+   visita_anticipata(r->sinistro, elabora);
+   visita_anticipata(r->destro, elabora);
+}
+```
+
+`elabora(nodo_albero*)` è una funzione che verrà passata come argomento ed effettuerà qualche elaborazione sul contenuto di ciascun nodo(ad esempio potrebbe stampare o accumulare dopo qualche trasformazione in qualche variabile globale)
+
+In C è possibile passare  delle funzioni a degli algoritmi generici (così come è la visita) per definire delle **meta**-strategie indipendenti dall'operazione
+
+#### Esempio di funzione di elaborazione
+
+```
+void stampa_dato(nodo_albero* r){
+   printf("%f", r->dato);
+}
+
+   // la funzione di visita che applica la stampa del dato a ciascun nodo
+   //può essere invocata nel seguente modo:
+   visita_anticipata(albero.radice, stampa_dato);
+```
+
+#### Visita simmetrica e posticipata
+
+```
+void visita_simmetrica(nodo_albero* r, void(*elabora)(nodo_albero*)){
+   if (r == NULL)
+   return;
+   visita_simmetrica(r->sinistro, elabora);
+   elabora(r);
+   visita_simmetrica(r->destro, elabora);
+}
+```
+---
+```
+void visita_posticipata(nodo_albero* r, void (*elabora)(nodo_albero)){
+   if (r == NULL)
+   return;
+
+   visita_posticipata(r->sinistro, elabora);
+   visita_posticipata(r->destro, elabora);
+   elabora(r);
+}
+```
+
+#### Algoritmi su alberi: complessità
+
+La forma delle equazioni di complessità degli algoritmi ricorsivi su alberi è la seguente:
+$$
+T(n)= \begin{cases}
+   O(1) \quad \text{se } n = 0 \\
+   T(s) + T(n-s-1)+ O (1) \quad se n> 0\\
+\end{cases}
+$$
+
+Con $s$ numero di nodi del sottoalbero sinistro.
+È possibile dimostrare formalmente che $T(n) = O(n)$(una dimostrazione per induzione proposta nel testo lo fa dimostrando che $T(n) \leq 3cn$), tuttavia è sufficente osservare che ciascun nodo dell'albero viene considerato da questi algoritmi **una e una sola volta**, pertanto la complessità sarà proporzionale al numero di nodi dell'albero
+
+
+## 10 - dizionari e le loro implementazioni
+
+### Motivazioni
+
+Supponiamo di avere i seguenti dati, relativi ai saldi di un insieme di conti correnti bancari:
+
+```
+# Numero_conto, Saldo
+12345, +2314.25
+2134, +127.23
+90213, +235.12
+5421, -25.62
+```
+
+Come li rappresentiamo in memoria se il mio obiettivo è effettuare l'aggiornamento del saldo di un determinato conto?
+
+
+Una soluzione può essere  quella di utilizzaer  un array di `struct` in cui vengono caricati i dati dal file e poi su di esso viene effettuata la ricerca del conto da aggiornare:
+
+
+```
+# Numero_conto, Saldo
+12345, +2314.25
+2134, +127.23
+90213, +235.12
+5421, -25.62
+```
+
+
+```
+typedef struct{
+   int numero_conto;
+   float saldo;
+}conto_corrente;
+conto_corrente conti[100];
+```
+Tralasciandoil tempo necssario per il caricamento del file in memoria, quale sarebbe la migliore strategia per realizzare l'operazione di ricerca del conto e di aggiornamento?
+
+E quale sarebbe la complessità di questa operazione espressa in termini di $n$, quantità di conti?
+
+### Dizionari
+
+Struttura dati astratta che ci consente di rappresentare **collezioni di elementi indicizzabili**, ovvero delle **corrispondenze** fra un dato detto **chiave** e il **valore** ad essa associato.
+Possono rappresentare:
+- degli "array sparsi", con idici non necessariamente contiguim es. un array `a[3], a[5], a[8]` ma non gli altri
+- delle corrispondenze con indici non int, es. un nome `["mario rossi"]`
+- degli "insiemi" qualora il solo campo chiave sia significativo
+
+Anche le sequenze lineari $a_0, a_1, \dots$ rappresentano delle corrispondenze, però:
+- le chiavi sono vincolate **esattamente** agli interi $0,1,\dots,n-1$
+- tutti gli elementi compresi fra $0$ e $n-1$ sono **obbligatoriamente presenti** nella corrispondenza
+
+#### izionari: struttura del dato
+
+Assumiamo che i dati siamo composti da elementi con campo `chiave` e un insieme di informazioni *satellite* (che dipendono dall'applicazione) che per semplicità supponiamo essere un dato di tipo `float`
+- siamo interessati all' operazione di **ricerca** del dato corrispondente alla **chiave** e al reperimento delle relative informazioni satellite
+- *il tipo di dato della chiave*, denotato con $U$, può essere arbitrario (`int`, stringhe, ecc.)
+
+```
+typedef struct {
+   int chiave; 
+   float dato;
+}elemento_dizionario;
+```
+```
+typedef struct{
+   char* chiave;
+   struct impiegato dato;
+}elemento_dizionario;
+```
+#### dizionario: operazioni di base
+
+Dato un  dizionario `d` sono  definite le seguenti operazioni:
+- `ricerca(d, k)` cerca e restituisce un puntatore all' elemento `e` take che `e->chiave` $=k\in U$(restituisce `NULL` se non esiste)
+- `successore(d, k)` restituisce l'elemento la cui chiave è immediatamente successiva al valore $k$ nell'ordinamento(l'elemento di chiave $k$ se essa non esiste)
+- `intervallo(d ,k1 ,k2)` restituisce la sequenza di elementi le cui chiavei $k$ sono comprese in `k1` $\leq k \leq$`k2.
+- `rango (d,k)` restituisce il numero di elementi la cui chiave viene prima di $k$ nell' ordinamento
+
+#### implementazione con sequenze lineari
+
+Come visto all'inizio, un dizionario può essere implementato attraverso sequenze lineari(liste, liste doppie o array dinamici) ,modificando opportunamente il tipo di dato memorizzato(usando`elemento_dizionario` invece di float)
+
+È possibile, opzionalmente, mantenere gli elementi della sequenza **ordinati** per chiave, qualora fossero necessarie le operazioni aggiuntive
+- Ciò migliora la complessità dell'operazione di ricerca solo nel caso dell' implementeazione con array, mentre con le listr non apporta nessun beneficio
+- in ogni caso, però semplifica l'implementazione delle operazioni `predecessore()`, `successore()` e `intervallo()`
+
+
+### Alberi binari di ricerca
+
+Un **albero binario di ricerca**(ABR)
