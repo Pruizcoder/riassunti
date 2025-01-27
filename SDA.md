@@ -115,6 +115,8 @@
       - [dizionario: operazioni di base](#dizionario-operazioni-di-base)
       - [implementazione con sequenze lineari](#implementazione-con-sequenze-lineari)
     - [Alberi binari di ricerca](#alberi-binari-di-ricerca)
+      - [visite su alberi binari di ricerca](#visite-su-alberi-binari-di-ricerca)
+      - [ricerca negli alberi binari di ricerca](#ricerca-negli-alberi-binari-di-ricerca)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -2429,4 +2431,61 @@ Come visto all'inizio, un dizionario può essere implementato attraverso sequenz
 
 ### Alberi binari di ricerca
 
-Un **albero binario di ricerca**(ABR)
+Un **albero binario di ricerca**(ABR) è un albero bianrio che soddisfa la seguente proprietà:
+- è un albero vuoto, oppure se `r` è la sua radice vale `r->sinistro->chiave` < `r->chiave` e `r->chiave` < `r->destro->chiave`
+- la proprietà vale ricorsivamente per i sottoalberi radicati in `r->sinistro` e `r->destro`
+
+**Assunzione**: un solo nodo con un data chiave
+
+La struttura dell'albero è quella dettata dalla proprietà dell' ABR
+
+Dove si trova la chiave con valore minimo dell' ABR? E quella con il valore massimo?
+Nelle nostre analisi ignoreremo il dato, poichè l'informazione significativa per la ricerca è quella della chiave
+
+![abr](img\abr.png)
+
+#### visite su alberi binari di ricerca
+
+Nel caso di un albero binario di ricerca, la visita `simmetrica` elabora gli elementi in ordine di chiave crescente(attenzione, sul libro è indicato scorrettamente `anticipata`)
+
+```
+int ordine; // uso una variabile globale
+void stampa_ordine(nodo_albero* r){
+   printf("%d, $d", ordine, r->chiave);
+   ordine++;
+}
+
+void visita_simmetrica(nodo_albero* r, void(*elabora)(nodo_albero*)){
+   if (r == NULL)
+   return;
+   visita_simmetrica(r->sinistro, elabora);
+   elabora(r);
+   visita_simmetrica(r->destro, elabora);
+}
+
+ordine = 1;
+visita_simmetrica(albero.radice, stampa_ordine);
+```
+
+![abr2](img\abr2.png)
+
+Risultato: ` (1, 3) (2, 8) (3, 9) (4, 10) (5, 12) (6, 17) (7, 20)`
+
+#### ricerca negli alberi binari di ricerca
+
+```
+nodo_albero*  ricerca(nodo_albero* r, int chiave){
+   if (r== NULL)
+   return NULL;
+   if (chiave == r->chiave)
+   return r;
+   else if (chiave < r->chiave)
+      return ricerca(r->sinistro, chiave);
+   else
+    return ricerca(r->destro, chiave);
+
+}
+```
+
+L'operazione di ricerca è guidata dalla struttura dell' albero: non è necessario Complessità $O(h)$ con $h$ altezza dell'albero(e dunque $O(log\;n)$se completo)
+
