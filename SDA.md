@@ -141,7 +141,6 @@
       - [Selezione delle attività: osservazioni](#selezione-delle-attività-osservazioni)
     - [Problema del partizionamento delle attività](#problema-del-partizionamento-delle-attività)
       - [Partizionamento delle attività: esempio di soluzione](#partizionamento-delle-attività-esempio-di-soluzione)
-      - [schema dell' algoritmo](#schema-dell-algoritmo)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -2943,7 +2942,7 @@ In questo caso l'algoritmo deve decidere non solo se includere o meno l'attivit�
 
 L'euristica ottima per la decisione, in questo caso, è quella che considera il tempo di inizio delle attività, in ordine crescente: $h(a) = a.start$. La scelta della risorsa da utilizzare, però può essere realizzata in modo efficente scegliendo sempre la prima disponibile(ossia quella che risulta libera da più tempo). Quindi, in questo caso abbiamo anche un'euristica per la scelta della risorsa $h^{\prime}(a,s) = min_{r\in \mathbb{R}}\{r.disponibile\leq a.start\}$ che invece è dinamica
 
-#### schema dell' algoritmo
+**schema dell' algoritmo**
 
 ![Partizionamento2](img\Partizionamento1.png)
 
@@ -2967,3 +2966,19 @@ La risorsa $A_5$ è in conflitto con le ultime attività di entrambe le risorse,
 
 La risorsa $A_5$ è in conflitto con le ultime attività di entrambe le risorse, pertanto è necessario creare una nuova risorsa $R_3$ per eseguirla
 
+![Partizionamento6](img\Partizionamento6.png)
+
+Anche la risorsa $A_3$ richiede una nuova risorsa, e lo stesso dicasi per $A_3,A_8,A_9$ e $A_1$
+
+![Partizionamento7](img\partizionamento7.png)
+
+Infine, $A_6$ trova posto sulla risorsa $R_{12}$ (disponibile da più tempo rispetto a $R_1$),$a_{10}$ sulla risorsa $R_1$(unica disponibile) e $A_4$ sulla risorsa $R_5$ (disponibile da più tempo rispetto a $R_2$).
+
+Anche in questo caso l'ordinamento fra le componenti delle soluzioni è **statico**: dipende solo dal valore `start` dell'attività e non cambia con l'aggiunta di elementi alle soluzioni.
+Tuttavia, la scelta della risorsa, invece, è dinamica e dipende dalla risorsa che è disponibile da più tempo.
+
+Altri esempi di euristiche che vengono aggiornate dinamicamente in base agli elementi delle soluzioni possono essere visti nel caso dei grafi oppure, nel caso delle codifiche.
+
+Sebbene non sia stato dato il codice, la complessità è stimabile in $O(nr)$ con $r$ numero di risorse utilizzate nella soluzione, dovuta al fatto che a ciascun elemento devo cercare la risorsa al quale assegnarlo ($O(n^2)$ nel caso peggiore).
+
+Se le risorse vengono mantenute in una coda di priorità minima ordinata per istante di fine dell' ultima attività il tempo diventa $O(n\;log\,r)$, ovvero $O(n\; log\,n)$ nel caso peggiore.
