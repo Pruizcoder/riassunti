@@ -134,6 +134,10 @@
       - [Algoritmi greedy: dipendenza dalla soluzione](#algoritmi-greedy-dipendenza-dalla-soluzione)
   - [Problema di selezione delle attività](#problema-di-selezione-delle-attività)
       - [Euristica 1: minimo tempo di inizio :x:](#euristica-1-minimo-tempo-di-inizio-x)
+      - [Euristica 2: intervallo più piccolo :x:](#euristica-2-intervallo-più-piccolo-x)
+      - [Euristica 3: numero inferiore di conflitti :x:](#euristica-3-numero-inferiore-di-conflitti-x)
+      - [Euristica 4: minimo tempo di fine :white\_check\_mark:](#euristica-4-minimo-tempo-di-fine-white_check_mark)
+      - [Selezione delle attività: esempio di esecuzione](#selezione-delle-attività-esempio-di-esecuzione)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -2845,4 +2849,56 @@ $$
 
 Questa euristica non è ottimale: si può costruire, infatti, il seguente controesempio:
 
-![euristica1 ](img\euristica1.png)
+![euristica1](img\euristica1.png)
+
+Chiaramente, sarebbe preferibile  eseguire le quattro attività $1\{a,b,c,d\}$ che iniziano dopo piuttosto che la sola attività $\{e\}$
+
+#### Euristica 2: intervallo più piccolo :x:
+
+$$
+h(a)= a-finish - a.start
+$$
+Anche questa euristica non è ottimale: si può costruire, infatti, il seguente controesempio:
+
+![euristica2](img\euristica2.png)
+
+ Chiaramente, sarebbe preferibile eseguire le attività $\{a,b\}$ sebbene siano più lunghe piuttosto che la sola attivita $\{e\}$
+
+ #### Euristica 3: numero inferiore di conflitti :x:
+
+$$
+h(a) = |\{b:a.finish \geq b.start \land a.start\leq b.finish\}|
+$$
+
+Anche questa euristica non è ottimale: si può costruire, infatti, il seguente controesempio:
+
+![euristica3](img\euristica3.png)
+
+Chiaramente, sarebbe preferibile eseguirele attività $\{a,b,c,d\}$ anche se esse sono in conflitto con ben tre altre attività piuttosto che la sola attivita $\{f\}$
+
+#### Euristica 4: minimo tempo di fine :white_check_mark:
+
+$$
+h(a) = a.finish
+$$
+
+![euristica4](img\euristica4.png)
+
+Questa euristica sembra essere ottimale, ed infatti è possibile provarlo formalmente(la dimostrazione è per induzione sulla lunghezza dell'insieme di attività selezionate).
+
+#### Selezione delle attività: esempio di esecuzione
+
+![selattiv1](img\selattiv1.png)
+
+Il primo elemento a essere inserito è $A_7$ perchè inizialmente nessun elemento è presente nella soluzione e dunque in conflitto con esso. Il prossimo candidato all'inserimento è $A_2$ che tuttavia è in conflitto con $A_7$ e deve essere scartato.
+
+![selattiv2](img\selattiv2.png)
+
+L'elemento preso in considerazione successivamente è $A_{12}$ che non è in conflitto con $A_7$ e quindi può essere inserito
+
+![selattiv3](img\selattiv3.png)
+
+
+Siamo giunti a considerare $A_6$ per l'inserimento: esso è in conflitto con $A_{12}$ e pertanto lo saltiamo così come $A_8, A_{11}, A_9, A_5 \text{e} A_1$ rispetto a $A_{12}$ L'attività $A_4$ invece non è in conflitto con nessuno dei membri dei $s$ per cui la possiamo inserire.
+
+![selattiv4](img\selattiv4.png)
