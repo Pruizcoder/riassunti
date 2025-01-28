@@ -138,6 +138,10 @@
       - [Euristica 3: numero inferiore di conflitti :x:](#euristica-3-numero-inferiore-di-conflitti-x)
       - [Euristica 4: minimo tempo di fine :white\_check\_mark:](#euristica-4-minimo-tempo-di-fine-white_check_mark)
       - [Selezione delle attività: esempio di esecuzione](#selezione-delle-attività-esempio-di-esecuzione)
+      - [Selezione delle attività: osservazioni](#selezione-delle-attività-osservazioni)
+    - [Problema del partizionamento delle attività](#problema-del-partizionamento-delle-attività)
+      - [Partizionamento delle attività: esempio di soluzione](#partizionamento-delle-attività-esempio-di-soluzione)
+      - [schema dell' algoritmo](#schema-dell-algoritmo)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -2902,3 +2906,64 @@ L'elemento preso in considerazione successivamente è $A_{12}$ che non è in con
 Siamo giunti a considerare $A_6$ per l'inserimento: esso è in conflitto con $A_{12}$ e pertanto lo saltiamo così come $A_8, A_{11}, A_9, A_5 \text{e} A_1$ rispetto a $A_{12}$ L'attività $A_4$ invece non è in conflitto con nessuno dei membri dei $s$ per cui la possiamo inserire.
 
 ![selattiv4](img\selattiv4.png)
+
+Tutti gli elementi sono in conflitto con $A_4$ oppure anche con $A_{12}$ per cui non verranno inclusi.
+
+![selattiv5](img\selattiv5.png)
+
+Il risultato è pertanto: $s: \{A_7,A_{12},A_4\}$
+
+#### Selezione delle attività: osservazioni
+
+In questo caso l'ordinamento fra le componenti delle soluzioni è **statico**: dipende solo dal valore `finish` dell'attività e non cambia con l'aggiunta di elementi alle soluzioni.
+
+Tuttavia, alcune attività non sono inserite perchè **non compatibili**, esse vengono semplicemente ignorate.
+
+Nel caso del problema considerato l'euristica è ottima, ma basta modificare il problema introducendo dei pesi $\omega_i$ per le attività (ad esempio dei profitti) e cercare di massimizzare il profitto complessivo delle attività selezionate $\sum a_i \in S\; \omega_i$ perchè questa euristica non sia più quella ottima in questo caso(il problema di **selezione delle attività pesate** non è risolubile esattamente attraverso un algoritmo greedy).
+
+La complessità è $O(n^2)$ dovuta ai due cicli di enumerazione elementari e di verifica di compatibilità con gli altri elementi.
+
+### Problema del partizionamento delle attività
+
+Il problema del partizionamento delle attività è definito con gli stessi dati del problema di selezione, tuttavia la differenza è che sono a disposizione **più risorse** che possono ospitare / eseguire le attività (il limite superiore al numero di risorse è di una risorsa per ciascuna attività).
+
+Potete pensare alle attività come a lezioni e alle risorse come aule in cui svolgerle.
+
+Il problema richiede che **tutte** le attività vengano selezionate ed assegnate ad un **risorsa**, **minimizzando** il numero totale di risorse necessarie.
+
+#### Partizionamento delle attività: esempio di soluzione
+
+![Partizionamento1](img\Partizionamento1.png)
+
+Il numero di risorse richieste da questa soluzione è 8 invece di 12(limite superiore).
+
+**strategia greedy**
+
+In questo caso l'algoritmo deve decidere non solo se includere o meno l'attività(tutte le attività devono essere incluse) ma anche su quale delle risorse l'attività corrente deve essere eseguita. In particolare deve decidere se l'attività può essere eseguita su di una risorsa esistente o, piuttosto, ne debba essere creata una nuova.
+
+L'euristica ottima per la decisione, in questo caso, è quella che considera il tempo di inizio delle attività, in ordine crescente: $h(a) = a.start$. La scelta della risorsa da utilizzare, però può essere realizzata in modo efficente scegliendo sempre la prima disponibile(ossia quella che risulta libera da più tempo). Quindi, in questo caso abbiamo anche un'euristica per la scelta della risorsa $h^{\prime}(a,s) = min_{r\in \mathbb{R}}\{r.disponibile\leq a.start\}$ che invece è dinamica
+
+#### schema dell' algoritmo
+
+![Partizionamento2](img\Partizionamento1.png)
+
+Dato il vettore delle attività ordinato per istante di inizio, scegli ciascuna attività e assegnala alla risorsa disponibile(ovvero che non ha attività in esecuzione incompatibili con l'attività scelta) che risulta libera da più tempo
+
+**esempio**
+
+![Partizionamento3](img\Partizionamento3.png)
+
+L'attività $A_2$ può essere scelta e assegnata alla prima risorsa che viene creata ex novo (per uniformità, anche all'inizio non creiamo alcuna risorsa).
+
+Di seguito può essere scelta l'attività $A_7$ che essendo in conflitto con $A_2$ dev'essere assegnata ad una nuova risorsa.
+
+La prossima attività candidata è $A_{12}$ che verrà assegnata dalla risorsa libera da più tempo,$R_2$ mentre $A_{11}$ può trovare posto su $R_2$
+
+![Partizionamento4](img\Partizionamento4.png)
+
+La risorsa $A_5$ è in conflitto con le ultime attività di entrambe le risorse, pertanto è necessario creare una nuova risorsa $R_3$ per eseguirla
+
+![Partizionamento5](img\Partizionamento5.png)
+
+La risorsa $A_5$ è in conflitto con le ultime attività di entrambe le risorse, pertanto è necessario creare una nuova risorsa $R_3$ per eseguirla
+
