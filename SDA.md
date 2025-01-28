@@ -129,6 +129,11 @@
       - [tabelle hash con indirizzamento aperto: implementazione in C](#tabelle-hash-con-indirizzamento-aperto-implementazione-in-c)
       - [Tabelle has con indirizzamento aperto: analisi](#tabelle-has-con-indirizzamento-aperto-analisi)
       - [Tabelle has con indirizzamento aperto: analisi dell' inserimento](#tabelle-has-con-indirizzamento-aperto-analisi-dell-inserimento)
+  - [11 - algoritmi greedy](#11---algoritmi-greedy)
+    - [Algoritmi greedy](#algoritmi-greedy)
+      - [Algoritmi greedy: dipendenza dalla soluzione](#algoritmi-greedy-dipendenza-dalla-soluzione)
+  - [Problema di selezione delle attività](#problema-di-selezione-delle-attività)
+      - [Euristica 1: minimo tempo di inizio :x:](#euristica-1-minimo-tempo-di-inizio-x)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -2743,4 +2748,101 @@ $$
 \mathbb{E}[T(n,m)]= \frac{m-n}{n}\cdot 1 + \frac{n}{m}\cdot(1+t(n-1, m-1)) = 1+ \frac{n}{m}T(n-1, m-1)
 $$
 
-È facilmente dimostrabile per induzione su $m > n > 0$ che T()
+È facilmente dimostrabile per induzione su $m > n > 0$ che $T(n,m) \leq \frac{m}{m-n}$ da cui deriviamo
+$$
+T(n,m)\leq \frac{m}{m-n}= \frac{1}{1-\frac{n}{m}} = \frac{1}{1-\alpha}= O(1)
+
+$$
+Ovvero, il numero di accessi per l'inserimento risulta essere, in media, costante.
+
+## 11 - algoritmi greedy
+
+Gli algoritmo "**greedy**" o "**ingordi**" sono degli algoritmi iterativi che a ciascun passo, fra un insieme di scelte, scelgono sempre la **migliore** rispetto alla situazione corrente(**migliore localmente**)
+- non è detto che questa porti a una soluzione **globalmente** migliore
+
+Questi algoritmi, in generale, **costruiscono** una soluzione $s$ aggiungendone un frammento $a_i$ alla volta.
+
+Il problema è, di solito, di **ottimizzazione**, del tipo $min_s\in f(s)$
+- l'algoritmo è guidato da una funzione $h: A \rightarrow \mathbb{R}~{\geq 0}$ che consente di misurare l'**appetibilità** di ciascun frammento della soluzione e, di conseguenza, di ordinarli per valori crescenti(l'obiettivo dell'ottimizzazione è la minimizzazione)
+- la funzione $h$ è detta **euristica**
+
+### Algoritmi greedy
+
+Uno schema dell'algoritmo **greedy** può essere il seguente
+
+
+```
+Greedy (A,h);
+s= /*insieme_vuoto*/
+/*Ordina gli elementi di A utilizzando il criterio di ottimalità h(a[i])*/
+Ordina(A,h);
+for(i = 0;i < n; i++)
+   if(Unione(s, a[i])è una soluzione)
+   s = Unione(s,a[i]);
+   restituisci s come soluzione
+```
+
+#### Algoritmi greedy: dipendenza dalla soluzione
+
+In alcuni casi, il criterio di ottimalità può cambiare durante la costruzione della soluzione, ad esempio, perchè dipende da degli elementi già inseriti nell' insieme. In altri termini la funzione euristica dipende anche dalla soluzione finora costruita$f: A \times S \rightarrow \mathbb{R}^{\geq 0}$
+
+```
+Greedy(A,h);
+s = /*insieme vuoto*/
+pq = CreaCodaPriorità();
+for(i = 0; i < n; i++)
+//inserisce l'elemento a[i]
+//con valore di priorità pari alla
+//stima dell'euristica a soluzione vuota
+Enqueue(pq, h(a[i], {}), a[i]);
+
+while(!Empty(pq)){
+   frammento = First(pq);
+   if(Unione(s,frammento) è una soluzione)
+   s = Unione(s,frammento);
+   for (f = /* tutti i frammenti per cui la priorità può essere variata*/)
+   AggiornaPriorità(pq,h(f,s),f);
+}
+ // restituisci s come soluzione
+
+```
+
+È possibile adattare lo schema algoritmico per tenere conto, ad esempio memorizzando i frammenti della soluzione in una **coda di priorità**.
+
+Il valore di priorità associato a ciascun frammento ancora in coda, se potenzialmente variato a seguito della nuova soluzione, dovrà essere modificato.
+
+## Problema di selezione delle attività
+
+È dato un insieme $S$ di possibili **attività**(produzioni, pratiche da sbrigare, lezioni da svolgere) che debbano essere eseguite su di una **risorsa** (macchinario, esecutore umano, aula). La risorsa può essere utilizzata solo per un'attività alla volta.
+
+Ciascun attività $a \in S$ è definita attraverso due valori interi $a.start$e $a.finish$ che corrispondono agli istanti temporali in cui, qualora selezionata, inizia e termina.
+
+Supponiamo che tali istanti siano degli interi..
+
+Due attività $a$ e $b$ si dicono **compatibili** se non si sovrappongono, ossia $a.start\geq b.finish$ oppure $b.start \geq a.finish$
+
+Il **problema di selezione delle attività** consiste nel selezionare, fra quelle disponibili, il **massimo** numero possibile di attività mutualmente compatibili.
+
+**Esempio**
+
+![attivita1](img\attivita1.png)
+
+**Soluzioni**
+
+![attivita2](img\attivita2.png)
+
+Le soluzione al problema cono sottoinsiemi di $A$, pertanto il numero di possibili soluzioni al problema è $|\mathscr P(A)|= 2^{|A|}$. Ovviamente non tutte queste soluzioni sono valide, ma questo rende impraticabile la strategia "genera e verifica".
+
+Con l'idea di utilizzare un approccio **greedy** andiamo a cercare una possibile euristica $h:A\rightarrow \mathbb R^{\geq 0}$ che induce un ordine delle attività con la speranza che possa essere quello ottimale.
+
+Per ciascuna euristica cercheremo di costruire un controesempio, se esiste, relativamente alla sua ottimalità(ovvero un caso in cui se applicata non porta al risultato con il maggior numero di attività selezionate).
+
+#### Euristica 1: minimo tempo di inizio :x:
+
+$$
+h(a)= a.start
+$$
+
+Questa euristica non è ottimale: si può costruire, infatti, il seguente controesempio:
+
+![euristica1 ](img\euristica1.png)
