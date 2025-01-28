@@ -120,6 +120,15 @@
       - [Inserimento negli alberi binari di ricerca](#inserimento-negli-alberi-binari-di-ricerca)
       - [cancellazione negli alberi binari di ricerca](#cancellazione-negli-alberi-binari-di-ricerca)
     - [Alberi AVL](#alberi-avl)
+      - [AVL:cancellazione](#avlcancellazione)
+    - [tabelle hash](#tabelle-hash)
+      - [Dizionari: implementazione con tabelle hash](#dizionari-implementazione-con-tabelle-hash)
+      - [Dizionari: implementazione con tabelle hash con liste di trabocco](#dizionari-implementazione-con-tabelle-hash-con-liste-di-trabocco)
+      - [Dizionari: implementazioni con tabelle hash con liste di trabocco](#dizionari-implementazioni-con-tabelle-hash-con-liste-di-trabocco)
+      - [Tabelle hash con indirizzamento aperto](#tabelle-hash-con-indirizzamento-aperto)
+      - [tabelle hash con indirizzamento aperto: implementazione in C](#tabelle-hash-con-indirizzamento-aperto-implementazione-in-c)
+      - [Tabelle has con indirizzamento aperto: analisi](#tabelle-has-con-indirizzamento-aperto-analisi)
+      - [Tabelle has con indirizzamento aperto: analisi dell' inserimento](#tabelle-has-con-indirizzamento-aperto-analisi-dell-inserimento)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -2562,3 +2571,176 @@ Si tratta di alberi **1-bilanciato**, |`altezza(r->sinistro)`-`altezza(r->destro
 :bulb: **idea di base**: quando a seguito dell' inserimento l'albero si sbilancia di più do un livello, effettuare delle rotazioni per riequilibrarne l'altezza
 
 ![avl1](img\avl1.png)
+
+
+Alberi AVL: rotazioni
+
+Per le rotazione possono essere classificati 4 casi: Sinistro-Sinistro, Sinistro-Destro, Destro-Sinistro, Destro-Destro, $u$ è il nodo critico, ovvero il nodo al livello di profondità
+
+#### AVL:cancellazione
+
+È possibile trattare il caso della cancellazione in un AVL mantenendo l'altezza bilanciata, tuttavia l'algoritmo risultante è particolarmente complesso
+
+Usiamo un' idea alternativa per la cancellazione: utilizzare la **lazy deletion**, ovvero marcare **logicamente** un nodo come cancellato(attraverso un flag booleano) invece di eliminarlo fisicamente dall'albero
+
+- il nodo "cancellato", deve rimanere comunque nell'albero come guida per la ricerca
+
+Si osservi che, un numero di nodi cancellati anche se pari a metà dei nodi dell'albero contribuisce al più di un livello(dunque un valore costante) all'altezza dell'albero stesso:possiamo scegliere tale valore come livello di soglia
+
+Analogamente al caso degli array dinamici, quando il numero di nodi cancellati supera la metà dei nodi dell'albero, esso viene ricreato da zero includendo solamente i nodi non cancellati ed eleiminando l'albero originale
+
+Il costo ammortizzato di tale operazione è pari a $O(log\;n)$
+infatti, prima di effettuare l'operazione di creazione di un nuovo albero si sono effettuate $\frac{n}{2}$ cancellazioni sulle quali *spalmare* il costo dell'operazione
+- la componente di costo relativo a questa operazione è la ricerca dell'elemento contenente la chiave da eliminare, avente costo $O(log\; n)$
+ 
+L'operazione di copia dei nodi(non cancellati) dell'albero in un nuovo albero richiede tempo $O(n\,log\;n)$, pertanto, **ammortizzando** tale costo sulle $\frac{n}{2}$ operazioni di cancellazione otteniamo che il costo di un'operazione di cancellazione è pari a $\frac{O(n\,log\, n)}{n/2}$
+
+### tabelle hash
+
+
+Le funzioni **hash** (polpettone) soon delle funzioni con svariati utilizzi in informatica, ad esempio in crittografiad
+
+- $h(m) = c$, è facile da calcolare ma è molto difficile calcolarne l'inversa $h^{-1}(c)$ per ricostruire il messaggio originale
+
+Esempi:
+
+- $h(k) \text{ mod } m$, mappa gli $n$ elementi $k \in \{e_1,e_2,\dots, e_n\}$ in $0,\dots, m-1$.
+- $H (k) = k_0\, \oplus\dots\oplus k_{s-1}$ calcola lo XOR binario fra gli $s$ blocchi di bit(di pari lunghezza) di cui è composta la chiave $k$,mappando gli elementi in $=,\dots, |k_i|-1$ ne esistono di più sofisticate, appunto, per la crittografia(`md5`, `sha`)
+#### Dizionari: implementazione con tabelle hash
+
+le funzioni hash possono essere utillizzate per implementare un dizionario, in cui $n$ elementi del dizionario sono memorizzati in un array di $m$ elementi, ciascuno di essi alla posizione $h(k)$(detto**tabella hash**)
+
+Ovviamente questo funziona se $n = O(n)$ e la funzione $h(k)$ è **perfetta**, ossia non genera alcuna collisione ($k \neq k^{\prime}$e $h(k) = h(k^{\prime})$)
+- in tal caso, la complessità delle operazioni è $O(1)$, posto che indichiamo con un booleano la presenza o meno di un dato nella tabella
+
+#### Dizionari: implementazione con tabelle hash con liste di trabocco
+
+Nel caso generale ciò non si verifica, pertanto si utilizzano delle tabelle con **liste di trabocco**
+
+Esempio con $h(k) =$`k % 5` e insieme di chiavi $\{3,13,4,1,9,7\}$
+
+
+![hash1](img\hash1.png)
+
+#### Dizionari: implementazioni con tabelle hash con liste di trabocco
+
+```
+elemento_dizionario* ricerca(tabella_hash* tabella, int chiave){
+   int h = hash(chiave);
+elemento_dizionario* p;
+p = ricerca_in_lista(tabell[h], chiave);
+if (p != NULL)
+   return p->datp
+else
+return NULL;
+}
+```
+
+```
+void inserisci(tabella_hash* tabella, int chiave, float dato){
+   if (ricerca(tabella, chiave) == NULL){
+      h = hash(chiave);
+      aggiungi_in_coda(tabella[h], chiave, dato);
+   }
+}
+```
+
+```
+void cancella(tabella_hash* tabella, int chiave){
+if(ricerca(tabella, chiave)!= NULL){
+   h = hash(k);
+   cancella_elemento_lista(tabella[h], chiave, dato);
+}
+}
+```
+
+La complessià delle operazioni è proporzionale alla lunghezza $l$ della lista, $O(l)$
+- ovviamente nel caso peggiore la funzione *hash* calcola lo stesso indice per tutte (o quasi) le chiavi e dunque la lunghezza è $l = O(n)$ così come la complessità
+
+In un caso non così patologico, tuttavia possiamo assumere che la funzione di *hash* distribuisca in modo uniforme le chiavi fra i vari indici della tabella, in tal caso la lunghezza media della lista sarà $l = O(\frac{n}{m})$
+
+Indicando con $\alpha = \frac{n}{m}$ il cosiddetto **fattore di carico** della tabella hash, possiamo esprimere la complessità delle operazioni nella forma $O(1+\alpha)$, ovvero costante a meno del fattore di carico
+
+#### Tabelle hash con indirizzamento aperto
+
+Un'alternativa all'uso delle liste di trabocco consiste nel utilizzare una tabella con $m$ elementi e più funzioni di hash alternative: se la cella della tabella risulta già occupata, si proverà con un'altra funzione a calcolare una posizione alternativa.
+
+Nel caso dell'**indirizzamento aperto** è data una *famiglia* di $m$ funzioni hash $h_i(k)$ che vengono provate(nell'ordine di $i$ crescente). Ciascuna di tali funzioni devono generare una permutazione degli indici.
+
+**Esempi di famiglie di funzioni di hash**.
+
+- $h_i(k) = (h^{\prime}(k) +i)\%m$ **scansione lineare**
+- $h_i(k) = (h^{\prime}(k)+ ai^2 +bi +c)\%m$ **scansione quadratica**
+- $h_i(k) = (h^{\prime}(k) +i \cdot h^{\prime \prime}(k))\%m$ **scansione basata su hash doppio**
+
+:warning: A differenza dell' implementazione con liste di trabocco se la tabella è (quasi) piena non è possibile aggiungere un nuovo elemento.
+
+**esempio**
+
+
+![hash esempio](img\hashaperto.png)
+
+#### tabelle hash con indirizzamento aperto: implementazione in C
+
+```
+elemento_dizionario* ricerca(tabella_hash* tabella, int chiave)
+{
+   for (int i = 0; i < m; i++){
+      h = hash[i](chiave);
+      if (tabella[h]== NULL)
+      return NULL;
+      if (tabella[h]->chiave == chiave) 
+      return tabella[h];
+   }
+   return NULL;
+}
+```
+```
+void inserisci(tabella_hash* tabella, int chiave, float dato){
+   elemento_dizionario*e;
+   if(ricerca(tabella,chiave) == NULL){
+      i = 0;
+      e = crea_elemento(chiave, dato);
+      do{
+         h= hash[i](chiave);
+         if(tabella[h] == NULL)
+         tabella [h] = e;
+         i++;
+      }while(tabella[h] != e);
+   }
+}
+```
+
+#### Tabelle has con indirizzamento aperto: analisi
+
+Nell' analisi della complessità ci concentriamo nella misurazione delle operazioni di accesso alla tabella, assumendo che il calcolo della funzione hash richieda tempo costante.
+
+In generale, nel caso pessimo, tutte le operazioni richiedono tempo $O(m)$, necessario a provare tutte le $m$ funzioni di hash per trovare l'elemento cercato(eventualmente da eliminare) o determinare una cella vuota per l'inserimento.
+
+Cerchiamo di fare un'analisi più accurata nel caso medio
+
+Per ciò che riguarda il numero di accessi dell'operazione di ricerca e di cancellazione in media saranno necessari $\frac{n}{m}= \alpha$ operazioni di accesso, nell'ipotesi che per ogni chiave $k$, $h_i(k)$ sia una delle $m!$ permutazioni degli indici generata in modo casuale e uniforme
+
+Per l'operazione di inserimento l'analisi è leggermente più complessa.
+
+#### Tabelle has con indirizzamento aperto: analisi dell' inserimento
+
+Esprimiamo la funzione di complessità come$T(n,m)$, numero di accessi alla tabella effettuati per trovare una cella vuota in una tabella di $m>n$ posizioni
+$$
+t(n,m)\begin{cases}
+   0 \quad \text{se }n = 1 \\
+   1 + T(n-1, m-1) \quad \text{se }n >0 \text{per un numero di volte pari a }\frac{n}{m}\\
+   1 \quad se n> = \text{per un numero di volte pari a }\frac{m-n}{m}
+\end{cases}
+$$
+
+Per $T(0,m)$, la tabella è vuota e l'operazione accede direttamente ad una cella disponibile.
+In caso contrario, per $m-n$ volte su $m$ abbiamo un solo accesso quando la cella a cui si accede è disponibile, mentre per $n$ volte su $m$ la cella non sarà disponibile e dunque sarà necessario effettuare ulteriori $T(n-1, m-1)$ accessi(abbiamo escluso un elemento tra quelli possibili e proviamo una funzione hash in meno)
+
+Possiamo esprimere la relazione con il valore atteso $T(n,m)$ nel caso $n>0$:
+
+$$
+\mathbb{E}[T(n,m)]= \frac{m-n}{n}\cdot 1 + \frac{n}{m}\cdot(1+t(n-1, m-1)) = 1+ \frac{n}{m}T(n-1, m-1)
+$$
+
+È facilmente dimostrabile per induzione su $m > n > 0$ che T()
