@@ -117,6 +117,9 @@
     - [Alberi binari di ricerca](#alberi-binari-di-ricerca)
       - [visite su alberi binari di ricerca](#visite-su-alberi-binari-di-ricerca)
       - [ricerca negli alberi binari di ricerca](#ricerca-negli-alberi-binari-di-ricerca)
+      - [Inserimento negli alberi binari di ricerca](#inserimento-negli-alberi-binari-di-ricerca)
+      - [cancellazione negli alberi binari di ricerca](#cancellazione-negli-alberi-binari-di-ricerca)
+    - [Alberi AVL](#alberi-avl)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -2489,3 +2492,73 @@ nodo_albero*  ricerca(nodo_albero* r, int chiave){
 
 L'operazione di ricerca è guidata dalla struttura dell' albero: non è necessario Complessità $O(h)$ con $h$ altezza dell'albero(e dunque $O(log\;n)$se completo)
 
+![abr3](img\abr3.png)
+
+#### Inserimento negli alberi binari di ricerca
+
+```
+nodo_albero* inserisci(nodo_albero* r, int chiave, float dato){
+   if (r == NULL)
+      return crea_nodo_albero(chiave, dato);
+   else if(chiave < r->chiave)
+      r->sinistro = inserisci(r->sinistro, chiave, dato);
+   else if(chiave > r->chiave)
+      r->destro = inserisci(r->destro, chiave, dato);
+   else
+   r->dato = dato;
+   return r;
+}
+```
+Segue la struttura dell'albero e inserisce il nuovo nodo come foglio.L'assunzione è che vi sia un solo nodo con una data chiave, pertanto in caso sia già presente l'operazione aggiorna il dato.
+
+Complessità $O(h)$ con $h$ altezza dell'albero
+
+![abr4](img\abr4.png)
+
+Per la struttura dell'operazione di inserimento (il nuovo nodo è sempre inserito come foglia)l'albero potrebbe risultare particolarmente sbilanciato (e dunque $h = O(n)$, annullando qualunque beneficio ad usare an albero invece di una sequenza) 
+
+
+![abr5](img\abr5.png)
+
+#### cancellazione negli alberi binari di ricerca
+```
+nodo_albero* cancella(nodo_albero* r, int chiave){
+   if(r == NULL)
+   return r ;
+   if(r->chiave == chiave){
+   if (r->destro == NULL)
+      r = r->destro;
+   else if(r-> destro == NULL)
+      r = r->destro;
+   else {
+      w = minimo_sottoalbero(r->destro);
+      r->dato = w->dato;
+      r->destro = cancella(r->destro, w->chiave);
+   }
+   } else if(chiave < r->chiave)
+   r->sinistro = cancella(r->sinistro, chiave);
+   else
+   r->destro = cancella(r->destro, chiave);
+   return r;
+}
+```
+
+```
+nodo_albero* minimo_sottoalbero(nodo_albero* r){
+   while(r->sinistro != NULL)
+   r = r->sinistro;
+   return r;
+}
+```
+
+![abr 6](img\abr6.png)
+
+Operazione immediata se operata su un nodo con un solo figlio(sostituisce il nodo con il figlio), più complessa nel caso di un nodo con entrambi i filgi. Complessità $O(h)$
+
+### Alberi AVL
+
+Si tratta di alberi **1-bilanciato**, |`altezza(r->sinistro)`-`altezza(r->destro)`|$\leq 1$
+
+:bulb: **idea di base**: quando a seguito dell' inserimento l'albero si sbilancia di più do un livello, effettuare delle rotazioni per riequilibrarne l'altezza
+
+![avl1](img\avl1.png)
