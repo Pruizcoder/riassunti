@@ -161,6 +161,19 @@
       - [Visita in profondità: costo computazionale](#visita-in-profondità-costo-computazionale)
       - [Visita in profondità: versione ricorsiva](#visita-in-profondità-versione-ricorsiva)
       - [Grafi diretti aciclici (DAG) e ordinamento topologico](#grafi-diretti-aciclici-dag-e-ordinamento-topologico)
+      - [Ordinamento topologico: implementazione](#ordinamento-topologico-implementazione)
+      - [Ordinameto topologico: esempio](#ordinameto-topologico-esempio)
+    - [Problemi di cammino minimo](#problemi-di-cammino-minimo)
+      - [Cammini (pesati) minimi](#cammini-pesati-minimi)
+      - [cammini minimi](#cammini-minimi-1)
+      - [Algoritmo di Dijkstra](#algoritmo-di-dijkstra)
+      - [Algoritmo di Dijkstra: inizializzazione](#algoritmo-di-dijkstra-inizializzazione)
+      - [Algoritmo di Dijkstra: iterazioni](#algoritmo-di-dijkstra-iterazioni)
+      - [Dijkstra: complessità](#dijkstra-complessità)
+    - [Minimo albero ricoprente](#minimo-albero-ricoprente)
+      - [l'algoritmo di Kruscal](#lalgoritmo-di-kruscal)
+      - [Inizializzazione dell'algoritmo di Kruskal](#inizializzazione-dellalgoritmo-di-kruskal)
+      - [Complessità dell'algoritmo di Kruskal](#complessità-dellalgoritmo-di-kruskal)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -3361,3 +3374,246 @@ la visita in profondità opportunamente adattata permentte di definire un ordina
 Resituiremo l'ordime delle attività memorizzato in una pila
 
 ![Grafi6](img\Grafi6.png)
+
+#### Ordinamento topologico: implementazione
+
+```
+pila_int ordinamento_topologico(grafo g){
+   bool* raggiunto = (bool*)malloc(g.n * sizeof(bool));
+   pila_int ordine = crea_pila_int();
+   int s;
+   for(s = 0; s < g.n; s++) raggiunto[s] = false;
+
+   for (s = 0; s <g.n; s++)
+   if(!raggiunto[s])
+   _visita_in_profondita_ricorsiva_ordina(g, s, raggiunto, &ordine);
+
+   free(raggiunto);
+   return ordine;
+}
+ void __visita_in_profondita_ricorsiva_ordina(grafo g, int u, bool raggiunto[], pila_int* p_ordine){
+   nodo_adiacenza* e;
+   int v;
+   raggiunto [u] = true;
+   PEROGNI_VICINO(g, u, e, v){
+      if(!raggiunto[v])
+      __visita_in_profondita_ricorsiva_ordina(g, v, raggiunto, p_ordine);
+   }
+   push_int(p_ordine, u);
+ }
+```
+
+#### Ordinameto topologico: esempio
+
+I punti da cui parte/riparte la visita in profondità sono indicati da $start_i$
+
+È possibile dimostrare che partendo da nodi senza dipendenze si minimizza l'eventuale numero di restart
+
+Lo stack rappresenta l'ordine delle attività determinato(ne possono esistere diversi ma equivalenti)
+
+### Problemi di cammino minimo
+
+
+#### Cammini (pesati) minimi
+
+Consideriamo ora il problema di esplorare un grafo pesato per determinare il percorso di distanza più breve fra due nodi.
+
+La soluzione di tale problema sta alla base, ad esempio, degli algoritmi di **routing** geografico(Google Maps) o delle telecomunicazioni (IP routing)
+
+#### cammini minimi
+
+Dato un grafo pesato(senza perdita di generalità orientato) $G=(V,E,w)$, determinare i cammini di peso minimo, in ordine di genenralità crescente:
+
+1) fra due nodi $u$ e $v$;
+2) **fra un nodo "sorgente" $s$ e tutti gli altri nodi**;
+3) fra qualunqe coppia di nodi.
+
+![Grafi7](img\Grafi7.png)
+
+Il caso **1** può essere risolto attraverso il caso **2**, infatti è sufficente scegliere $s=u$ e poi prendere il solo cammino che arriva a $v$. Anche il caso **3** può essere risolto con **2** con un ciclo su tutti i possibili nodi sorgente.
+
+```
+typedef struct{
+float distanza;
+int pred;
+}cammini;
+```
+
+![grafi8](img\grafi8.png)
+
+#### Algoritmo di Dijkstra
+
+L'algoritmo di **Dijkstra** è applicabile solo su grafi con pesi non negativi. Risolve il problema di determinare **tutti** i cammini minimi da una data sorgente attraverso una strategia greedy con un euristica dinamica $h:A \times S \rightarrow \mathbb{R}^{\geqslant 0}$
+
+```
+cammini* dijkstra(grafo g, int s){
+   int u, v;
+   cammini c = (cammini*)malloc(g.n *sizeof(cammini));
+   coda_priorità_int q = crea_coda_priorita_int();
+   for(u = 0; u < g.n; u++){
+      c[u].distanza = INT_MAX;
+      c[u].pred = -1;
+   }
+   c[s].pred = s;
+   c[s].distanza = 0.0;
+   for (u = 0; u < g.n; u++)
+   enqueue_priorita_int(&q, u, -cammini[u].distanza);
+   while(!empty_priorita_int(q)){
+      nodo_adiacenza* e;
+      elemento_priorita ep = first_priorita_int(q);
+      dequeue_priorita_int(&q);
+      u = ep.dato;
+      PEROGNI_VICINO(g, u, e, v){
+         if(c[v].distanza > c[u].distanza + e->peso){
+            c[v].distanza = c[u].distanza + e-> peso;
+            c[v].pred = u;
+            aggiorna_priorita_int(&q, v, -c[v].distanza);
+         }
+      }
+   }
+   return c;
+}
+```
+#### Algoritmo di Dijkstra: inizializzazione
+
+![Dijkstra1](Dikstra1.png)
+
+Le strutture dati vengono inizializzate con distanze infinite e nessun predecessorre tranne che per la sorgente.
+
+#### Algoritmo di Dijkstra: iterazioni
+
+![Dijkstra2](Dijkstra2.png)
+
+A ciascun passo, le stime di distanza minima(e di conseguenza il predecessore) vengono aggiornate considerando i percorso che passano per il nodo estratto dalla coda di priorità: euristica greedy dinamica.
+
+![Dijkstra3](img\Dijkstra3.png)
+
+In alcuni casi le stime possono essere riviste perchè esiste un percorso più breve passando per un altro nodo. Nell'esempio, passando per il nodo 1 si ottiene un percorso per 4 di lunghezza 3 invece che di lunghezza 5(quello che passerebbe per 0).
+
+![Dijkstra4](img\Dijkstra4.png)
+
+L'algoritmo termina quando la coda di priorità è vuota e il risultato è nella tabella dei cammini.
+
+#### Dijkstra: complessità
+
+Il costo computazionale dell'algoritmo è dato principalmente da:
+- tempo per la costruzione della coda di priorità $t_c$
+- tempo di estrazione del minimo dalla coda di priorità $t_e$(ripetuto $n$ volte)
+- tempo di aggiornamento della priorità $t_d$ (ripetuto $m$ volte)
+Quindi in totale:
+$$
+O(t_c+nt_e+mt_d)
+$$
+**Due scenari implementativi:**
+
+- implementazione della coda di priorità mediante heap: $O((n+m)log\;n)$
+- implementazione della coda di priorità mediante lista non ordinata: $n^2 + m n )$
+
+###  Minimo albero ricoprente
+
+Il problema del **minimo albero ricoprente**(**minimum spanning tree**) trova applicazioni multiple, ad esempio nella progettazione di reti di telecomunicazioni oppure nell'analisi dei dati.
+
+Dato un grafo indiretto pesato $g = (V,E,w)$ si vuole trovare un sottografo $T = (V, E^{\prime})$
+con $E^{\prime} \subseteq E$ che sia:
+
+a) un albero, ovvero che sia un sottografo **connesso**, **aciclico** e abbia esattamente $|E^{\prime}|= n-1$ **archi**
+b) tra tutti i possibili alberi costruiti quello i cui archi abbiano peso minimo, ossia
+
+$$
+T = \argmin _{\underbrace{T=(V,E^{\prime})}_{\text{è un albero}}}\sum_{e\in E^{\prime}}w(e)
+$$
+
+**Esempio**
+
+![minimoalb1](img\minimoalb1.png)
+
+**Osservazioni**
+1. L'arietà dell'albero non è fissata(ossia non è $k$-ario per in fissato valore di $k$)
+2. L'aggiunta di un qualunque arco all'albero lo renderebbe ciclico, dunque non più un'albero
+
+#### l'algoritmo di Kruscal
+
+L'algoritmo di **Kruskal** si basa sull' idea di costuire l'albero incrementalmente partendo da una serie di insiemi/alberi $S_v$ disgiunti(costituiti inizialmente da un singolo nodo). A ciascun passo considera, on modo greedy, l'arco di peso minimo fra quello ancora non elaborati cercando di connettere due insemi.
+
+Sono possibili due casi:
+1. se l'arco connette due nodi appartenenti allo stesso insieme / albero può essere scartato: infatti esso chiuderebbe un ciclo e, per costruzione, essendo più pesante dei candidati già considerati non può appartenere al minimo albero ricoprente;
+2. se l'arco invece connette due nodi $u$ e $v$ appartenenti a due insiemi/alberi disgiunti allora, per come è stato scelto, è quello di peso minimo che **attraversa il taglio** $\mathcal{X}(S,R)= \{\{u,v\}\in S \land v \in R\}$
+
+
+```
+int* kruskal(grafo g){
+   lista_archi = crea_lista_archi();
+   insieme_nodi = crea_insieme_int();
+   int u,v;
+   coda_di_priorita_archi pq = crea_coda_di_priorita_archi();
+   insemi_di_nodi s = crea_insiemi_di_nodi();
+   int* archi = (int*)malloc(g.n *sizeof(int));
+   for(u = 0; u < g.n; u++)
+      archi[u] = -1;
+
+   For (u = 0; u < g.n; u++){
+      nodo_adiacenza* e;
+      PEROGNI_VICINO(g, u, e, v){
+         enqueue(pq, {u,v}, peso(g, u, v));
+      }
+      crea_insieme(&s, u);
+   }
+   while(!empty(pq)){
+
+   elemento_coda_priorita_archi e  = first(pq);
+   dequeue(pq);
+   u = e.dato.u; v = e.dato.v;
+   if(disgiunti(s, u, v)){
+      unisci(&s, u, v);
+      archi[u] = v;
+      archi[v] = u;
+   }
+   }
+   return archi;
+}
+```
+
+Le strutture dati **coda di priorità** e **inseme di nodi** andrebbero adattate per rappresentare degli archi e degli insiemi disgiunti di nodi.
+
+
+#### Inizializzazione dell'algoritmo di Kruskal
+
+![kruskal1](img\kruskal1.png)
+
+Ciascun nodo costituisce un insieme /albero a sè, nessun arco é stato selezionato.
+
+**Iterazione 1**
+
+![Kruskal2](img\Kruskal2.png)
+
+Dalla coda di priorità viene estratto l'arco d peso minimo e, poichè connette due insiemi disgiunti viene aggiunto effettuando l'unione dei due insiemi.
+
+**iterazioni successive**
+
+![kruskal3](img\kruskal3.png)
+
+Gli archi, di peso minimo, vengono estratti e l'operazione di unione viene ripetuta quando coinvolge insiemi/alberi disgiunti.
+
+**iterazione successiva**
+
+![kruskal4](img\kruskal4.png)
+
+Gli archi sebbene di peso mimino, vengono scartati qualora, invece, vadano a connettere nodi appartenenti allo stesso insieme / albero, poichè creerebbero un ciclo.
+
+
+#### Complessità dell'algoritmo di Kruskal
+
+Ipotizziamo che gli insiemi di nodi vengano rappresentati da una lista di liste ordinate(una per ciscun insieme). Esistono implementazioni più efficenti(strutture **union-find**, che non abbiamo trattato).
+
+a) l'inizializzazione delle strutture deti richiede tempo $O(m\,log\;m)$ per il riempimento della coda di priorità, mentre per la struttura che mantiene gli insiemi di nodi sono necessari $O(n)$ operazioni per la creazione della lista di liste.
+
+b) il ciclo `while` viene ripetuto al più $m$ volte (si potrebbe terminare prima quando tutti i nodi sono nello stesso insieme).
+
+- ciascuna operazione di `dequeue` dalla coda di priorità richiedono tempo $O(log\;m)$
+- ciascuna operazione di verifica della disgiunzione dei due insiemi richiede, nell'implementazione a lista, tempo$O(|l_1|+ |l_2|) = O(n)$(devo verificare se ci sono elementi in comune)
+- ciascuna operazione di unione dei due insiemi richiede tempo $O(|l_1|+|l_2|)=O(n)$, pichè le due liste rappresentanti i due insiemi sono rodinate è possibile fonderle con una funzione simile a `merge` dell' algoritmo merge sort.
+
+Pertanto la complessità totale dell'algoritmo è $O(m\,log\;m)+ O(m\cdot n)= O(m\cdot n)$
+
+Usando delle strutture dati opportune per gli insiemi di nodi(**union-find**) le operazioni di verifica della disgiunzione richiederebbero tempo $O(1)$ e l'operazione di unione tempo $O(log\;n)$ diminuendo la complessità totale a $O(m\,log\;m)+O(m\,log\;n) = O(m\,log\;n)$(infatti $O(m\,log\;m) = O(m\,log\;n^2)= O(m\,log\;n)$)
+
