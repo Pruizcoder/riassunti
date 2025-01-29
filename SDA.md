@@ -132,7 +132,7 @@
   - [11 - algoritmi greedy](#11---algoritmi-greedy)
     - [Algoritmi greedy](#algoritmi-greedy)
       - [Algoritmi greedy: dipendenza dalla soluzione](#algoritmi-greedy-dipendenza-dalla-soluzione)
-  - [Problema di selezione delle attività](#problema-di-selezione-delle-attività)
+    - [Problema di selezione delle attività](#problema-di-selezione-delle-attività)
       - [Euristica 1: minimo tempo di inizio :x:](#euristica-1-minimo-tempo-di-inizio-x)
       - [Euristica 2: intervallo più piccolo :x:](#euristica-2-intervallo-più-piccolo-x)
       - [Euristica 3: numero inferiore di conflitti :x:](#euristica-3-numero-inferiore-di-conflitti-x)
@@ -141,6 +141,26 @@
       - [Selezione delle attività: osservazioni](#selezione-delle-attività-osservazioni)
     - [Problema del partizionamento delle attività](#problema-del-partizionamento-delle-attività)
       - [Partizionamento delle attività: esempio di soluzione](#partizionamento-delle-attività-esempio-di-soluzione)
+  - [12 - Grafi e problemi si grafi](#12---grafi-e-problemi-si-grafi)
+    - [Definizione e e terminologia](#definizione-e-e-terminologia)
+    - [esempio](#esempio)
+    - [Adiacenza/incidenza, pesi, gradi](#adiacenzaincidenza-pesi-gradi)
+    - [Cammini](#cammini)
+    - [cicli, caratterizzazione degli alberi](#cicli-caratterizzazione-degli-alberi)
+    - [cammini minimi](#cammini-minimi)
+    - [Operazioni e Rappresentazioni](#operazioni-e-rappresentazioni)
+      - [Grafo come struttura di dati astratta: operazioni](#grafo-come-struttura-di-dati-astratta-operazioni)
+      - [Grafo: rappresentazioni concrete](#grafo-rappresentazioni-concrete)
+      - [Grafo: rappresentazione con liste di adiacenza](#grafo-rappresentazione-con-liste-di-adiacenza)
+      - [Implementazione operazioni e costo computazionale](#implementazione-operazioni-e-costo-computazionale)
+      - [Matrici di adiacenza](#matrici-di-adiacenza)
+      - [Implementazione e costo computazionale](#implementazione-e-costo-computazionale)
+      - [Comparazione delle operazioni su grafi nelle diverse implementazioni](#comparazione-delle-operazioni-su-grafi-nelle-diverse-implementazioni)
+    - [Problemi su grafi](#problemi-su-grafi)
+      - [Visita in ampiezza](#visita-in-ampiezza)
+      - [Visita in profondità: costo computazionale](#visita-in-profondità-costo-computazionale)
+      - [Visita in profondità: versione ricorsiva](#visita-in-profondità-versione-ricorsiva)
+      - [Grafi diretti aciclici (DAG) e ordinamento topologico](#grafi-diretti-aciclici-dag-e-ordinamento-topologico)
 
 ## 01 - Organizzazione della memoria, chiamate di funzioni, ricorsione
 
@@ -2818,7 +2838,7 @@ while(!Empty(pq)){
 
 Il valore di priorità associato a ciascun frammento ancora in coda, se potenzialmente variato a seguito della nuova soluzione, dovrà essere modificato.
 
-## Problema di selezione delle attività
+### Problema di selezione delle attività
 
 È dato un insieme $S$ di possibili **attività**(produzioni, pratiche da sbrigare, lezioni da svolgere) che debbano essere eseguite su di una **risorsa** (macchinario, esecutore umano, aula). La risorsa può essere utilizzata solo per un'attività alla volta.
 
@@ -2982,3 +3002,362 @@ Altri esempi di euristiche che vengono aggiornate dinamicamente in base agli ele
 Sebbene non sia stato dato il codice, la complessità è stimabile in $O(nr)$ con $r$ numero di risorse utilizzate nella soluzione, dovuta al fatto che a ciascun elemento devo cercare la risorsa al quale assegnarlo ($O(n^2)$ nel caso peggiore).
 
 Se le risorse vengono mantenute in una coda di priorità minima ordinata per istante di fine dell' ultima attività il tempo diventa $O(n\;log\,r)$, ovvero $O(n\; log\,n)$ nel caso peggiore.
+
+## 12 - Grafi e problemi si grafi
+
+### Definizione e e terminologia
+
+Rappresentano una generalizzazione degli alberi, in cui la relazione fra due nodi non è più solamente gerarichica ma può essere di qualunque altro tipo
+
+Un grafo $G=(V,E)$ è costituito da:
+un insieme di $V$ **vertici** o **nodo** $|V|=n$
+
+Un insieme di $E \subseteq V \times V$ **archi** (in inglese *edges*), insieme di coppie di noi $|E|=m$
+- le possibili coppie di nodi in un grafo con $n$ nodi sono $\binom{n}{2} = \frac{n-(n-1)}{2} = O(n^2)$ 
+- il frafo è detto **sparso** se $m = O(n)$, **denso** se $m = \Theta(n^2)$
+
+il numero di nodi  $n$ è detto **ordine** del grafo, mentre la **dimensione** del grafo è $n+m$
+
+Un grafo di ordine $n$ è detto **completo** qualore qualunque sua coppia di nodi sia connessa da un arco (si indica con $\mathbb{K}_n$)
+
+Un arco del grafo $e$ fra i nodi $u$ e $v$ vienen rappresentato come una coppia $e=(u,v)$
+
+In generale,$(u,v)\neq (v,u)$, ovvero questo tipo di rappresentazione implica una **direzionalità** o **assimetria** della relazione, l'arco è diretto da $u$ a $v$
+
+Esempi: nodo $u$ persona, nodo $v$, città, relazione "abita", oppure la relazione "padre di" nel caso di alberi
+
+Un grafo con **archi diretti** viene detto **grafo diretto**
+
+Nel caso la relazione descritta dagli archi del grafo sia **simmetrica**, invece, abbiamo che $(u,v)\in E \Longleftrightarrow (v,u) \in E$. In tal caso siamo in presenza di un **grafo indiretto** 
+
+In tal caso, con un piccolo abuso di notazione consideriamo come unico l'arco che differisce per l'ordine dei nodi $(u,v)\equiv (v,u)$
+
+
+### esempio
+
+![grafi1](img\grafi1.png)
+
+
+### Adiacenza/incidenza, pesi, gradi
+
+I nodi $u$ e $v$ tra i quali esiste un arco $e=(u,v)$ sono detti **adiacenti**, l'arco $e$ si dice **incidente** in $u$ e in $v$
+- :warning: il concetto di incidenza non guarda alla simmetria/asimmetria della relazione
+
+Un grafo è detto **pesato** se è definita una funzione $w: E \rightarrow \mathbb{R}$ che assegna un valore numerico ad ogni arco (detto **peso**)
+
+- a esempio la distanza fra gli aeroporti può essere il peso di ciascun arco
+
+Il **grado** di un nodo è il numero di archi incidenti in esso(non è legato al peso)
+
+- Nel caso di grafi diretti si può distinguere tra **grado entrante** e **grado uscente** da $u$ (rispettivamente, numero di archi$(x,u)$e$(u,x)$)
+
+### Cammini
+
+Un percorso fra nodi che si sposta visitando gli archi viene chiamato **cammino** o **percorso**.
+Formalmente un cammino è una sequenza di $k+1$ nodi $x_0, \dots, x_k$ tale che $(x_i, x_{i+1})\in E$ per ogni $0\leq i\leq k$.
+
+- $k$ è detta **lunghezza** del cammino(numero di archi attraversati)
+- un cammino fra due nodi $u$ e $v$ è un cammino in cui $x_0 = u$ e $x_k=v$
+- nel caso di grafi diretti, in generale, l'esistenza di un cammino da $u$ a $v$ non garantisce il cammino da $v$ a $u$ mentre nei grafi indiretti è sufficente invertire la direzione in cui sono percorsi gli archi
+
+Un cammino è detto **semplice** se non attraversa alcun nodo più di una volta
+
+Due nodi per i quali esiste un cammino sono detti **connessi**
+
+Un grafo in cui esiste un cammino per ogni coppia di nodi è detto **connesso**
+
+### cicli, caratterizzazione degli alberi
+
+un cammino in cui $x_0 = x_k$ è detto **ciclo**, ovvero è un cammino che, al termine, ritorna al nodo di partenza
+
+Un grafo che non contiene cicli viene detto **aciclico** altrimenti è detto **ciclico**
+
+Attraverso questi concetti è possibile caratterizzare gli alberi a partire dai grafi:
+- è possibile stabilire l'equivalenza fra un **albero** e un **grafo indiretto aciclico connesso** con $n$ nodi e $n-1$ archi
+
+### cammini minimi
+
+Un **cammino minimo** fra due doni $u$ e $z$ è caratterizzato dall'avere lunghezza minima tra tutti i cammini possibili fra $u$ e $z$
+
+- la **distanza** fra due nodi $u$ e $z$ è la lunghezza di un cammino minimo. Se tale cammino non esiste la distanza ha valore $+\infin$
+
+Nel caso di grafi pesati, si definisce il **peso di un cammino** come la somma dei pesi degli archi attraversati dal cammino stesso $\sum^{k-1}_{i=0}w(x_i, x_{i+1})$
+
+- un **cammino minimo pesato** è il cammino di peso minimo fra due nodi
+- la **distanza pesata** è il peso di un cammino minimo fra due nodi(analogamente se non esiste un cammino fra i nodi assumiamo abbia valore $+\infin$)
+
+### Operazioni e Rappresentazioni
+
+#### Grafo come struttura di dati astratta: operazioni
+
+**Creazione e Manipolazione:**
+- `crea_grafo(n, diretto?)`, crea un grafo con $n$ nodi privo di archi e diretto/indiretto a seconda del valore booleano
+- `aggiungi_arco(g,u,v,w)`, aggiungere un arco di peso $w$ tra $u$ e $v$
+- `rimuovi_arco(g,u,v)`, rimuovere un arco tra $u$ e $v$
+- `elimina_grafo(g)`, elimina il grafo
+
+**Verifica struttura** 
+
+- `esiste_arco(g,u,v)`, restituisce un valore di verità che corrisponde all'esistenza di un arco fra $u$ e $v$ nel grafo
+
+**Enumerazione vicinato**(dipende dalla rappresentazione):
+
+- consiste in un ciclo in cui vengono enumerati, uno alla folta, tutti i nodi adiaceni a un dato nodo $u$(possibilmente diretti, ovvero in uscita)
+
+
+#### Grafo: rappresentazioni concrete
+
+**Assunzione**: ciscun nodo è rappresentato da un indice numerico compreso fra $0$ e $n-1$ ($n$ numero totale di nodi)
+
+Due rappresentazioni comuni:
+- liste di adiacenza
+- matrici di adiacenza
+
+#### Grafo: rappresentazione con liste di adiacenza
+
+Vettore di liste in cui l'indice dell'elemento corrisponde all' indice numerico del nodo
+
+```
+typedef struct _nodo_adiacenza{
+   int vertice;
+   float pso;
+   struct _nodo_di_adiacenza* succ;
+}nodo_adiacenza;
+
+typedef struct {
+   int n;
+   nodo_adiacenza** adiacenti;
+   book diretto;
+}grafo;
+```
+![grafi2](img\grafi2.png)
+
+Grafo: liste di adiacenza
+
+Questo tipo di rappresentazione è particolarmente adatta per grafi *sparsi*, infatti tal caso la dimensione delle liste è limitata superiormente da una costante, tipicamente non troppo grande
+
+La complesssità spaziale di rappresentazione di un grafo mediante le liste di adiacenza è $O(n+m)$
+- quindi nel caso di un grafo denso(o completo) è $O(n^2)$
+
+La lunghezza massima di una lista di adiacenza è $n-1 = O(n)$
+
+#### Implementazione operazioni e costo computazionale
+
+- `g = crea_grafo(n)`: creazione del vettore di liste e imposizione a `NULL` di tutte le liste:$O(n)$
+- `aggiungi_arco(&g, u, v, w)`: aggiunta di un elemento in coda (o in testa) alla lista $O(1)$
+- `rimuovi_arco(&g, u, v)`: rimozione di un elemento dalla lista $O(n)$
+- Ricerca  dell' esistenza di un'arco fra due nodi:
+```
+esiste_arco(g, u, v):
+   z = g.adiacenti[u];
+   while (z != NULL){
+      if (z.vertice == v)
+         return true;
+      z = z.succ;
+   }
+   return false;
+```
+
+Complessità temporale $O(n)$
+
+Si può fare di meglio? Si, ad esempio mantenendo la sequenza di nodi adiacenti in un array dinamico oridnato, in tal caso la ricerca può essere svolta attraverso la ricerca binaria in tempo $O(log\,n)$
+
+Enumerazione vicinato di `u`
+```
+z= g.adiacenti[u];
+while (z != NULL){
+   /*elabora z*/
+   z  z.succ;
+}
+```
+
+Costo computazionale : $O(|adj(u)|) = O(n)$
+
+`elimina_grafo(&g)`: $O(m)$, deve rimuovere tutti gli elementi delle liste di adiacenza(pari agli archi $m$) e deallocare il vettore di liste $O(1)$
+
+#### Matrici di adiacenza
+
+![Grafi3](img\Grafi3.png)
+
+Rappresentazione particolarmente adatta per i grafi densi o per la verifica di esistenza degli archi
+
+Matrice $g$ di dimensione $n\times n$ in cui un valore diverso da zero per l'elemento $g[u][v]$ indica la presenza dell'arco $(u,v)$ e il valore zero indica la sua assenza.
+
+Il valore memorizzato può essere semplicemente un 1 nel caso di grafi non pesati o il peso dell'arco $w(u,v)$ nel caso di grafi pesatiù
+
+La complessità spaziale della memorizzazione del grafo attraverso la matrice di adiacenza è $O(n^2)$
+
+#### Implementazione e costo computazionale
+
+- `g = crea_grafo(n)`: creazione della matrice e impostazione a $0$ di tutti gli elementi: $O(n^2)$
+- `aggiungi_arco(&g, u, v, w)`: impostazione a $w$ dell'elemento $(u,v)$ della matrice $O(1)$
+- `rimuovi_arco(&g, u, v)`: impostazione a $0$ dell'elemento $(u,v)$ della matrice $O(1)$
+
+Esistenza di un arco
+
+```
+esiste_arco(g, u, v){
+   return g[u][v] != 0;
+}
+```
+
+Costo $O(1)$
+
+Enumerazione vicinato 
+
+```
+for (z = 0; z < n; z++ ){
+   if(esiste_arco(g, u, z))
+      /*elabora vicino*/
+}
+```
+Costo $O(n)$
+
+`elimina_grafo(&g)` deve semplicemente deallocare la matrice, $O(1)$
+
+#### Comparazione delle operazioni su grafi nelle diverse implementazioni
+
+| Operazione su un grafo con $n$ nodi, $m$ archi | Liste di adiacenza                             | Matrici di adiacenza                          |
+| ---------------------------------------------- | ---------------------------------------------- | --------------------------------------------- |
+| Creazione                                      | $O(n)$ creazione lista e impostazione a `NULL` | $O(n^2)$ creazione matrice a impostazione `0` |
+| inserimento $m$ archi                          | $O(m)$                                         | $O(m)$                                        |
+| Enumerazione vicinato nodo $u$                 | $O(\|adj(u)\|)$                                | $O(n)$                                        |
+| Eliminazione                                   | $O(n+m)$ eliminzione liste                     | $O(1)$ deallocazione matrice                  |
+
+
+### Problemi su grafi
+
+Analogamente agli alberi possiamo definire dei concetti di visita. in questo caso non ha senso parlare di visita simmetrica, anticipata e posticipata ma piuttosto si parla di visita in ampiezza e in profondità.
+
+- inoltre è necessario definire un nodo di riferimento per la partenza(non essendoci la radice)
+
+#### Visita in ampiezza
+
+A partire da un nodo $u$ si visitano tutti i nodi a distanza via via crescenta, ovvero prima quelli a distanza 1, poi quelli a 2 e così via
+- evita di esaminare ripetutamente gli stessi cammini
+
+Nell' implementazione proposta si utilizza una coda e un vettore di booleani `raggiunto` che indica se il nodo è già stato visitato(ed elaborato) in precedenza
+- l'uso di una coda per i nodi fa sì che questi vengano elaborati secondo una strategia *FIFO* e dunque per primi quelli più vicini al nodo dal quale è stato originato il cammino
+
+```
+void visita_in_ampiezza(grafo g, int s, void elabora(grafo, int)){
+   bool* raggiunto = (bool*)malloc(g.n * sizeof(bool));
+   int u,v;
+   //la coda è adattata per contenere degli interi
+   coda_int q = crea_coda_int();
+   //inizializzazione strutture ausiliarie
+   for (u = 0; u < g.n; u++)
+   raggiunto[u] = false
+
+//partiamo dal nodo sorgente s
+enqueue_int(&q,s);
+raggiunto[s] = true;
+
+//finchè ci sono nodi nella coda
+while(!empty_int(q)){
+   nodo_adiacenza* e;
+   //estrai il nodo
+   u = first_int(q);
+   dequeue_int(&q);
+   //applica la funzione di elaborazione al nodo corrente
+   elabora(g, u);
+   //enumera il vicinato(non raggiunto)
+   PEROGNI_VICINO(g, u, e, v){
+      if (!raggiunto[v]){
+         enqueue_int(&q, v);
+         raggiunto[v] = true;
+      }
+   }
+}
+
+//eliminaizione strutture ausiliarie
+elimina_coda_int(&q);
+free(raggiunto);
+}
+```
+
+Vengono visitati (una sola volta) tutti i nodi e gli archi raggiungibili dalla sorgente
+
+![Grafi 4](img\Grafi4.png)
+
+Nella figura è indicato un possibile ordine di visita di ciascun nodo a partire da $s = 2$
+- L'ordine effettivo dipende da come viene enumerato il vicinato ma tutti i nodi a distanza(minima) $k$ dalla radice vengono visitati uno di seguito all'altro
+
+Tempo di esecuzione: $O(n+m)$
+
+```
+void visita_in_profondita(grafo g, int s, void elabora(grafo, int)){
+   bool* raggiunto = (bool*)malloc(g.n *sizeof(bool));
+   int u, v;
+   //la pila è adattata per contenere degli interi
+   coda_int q = crea_pila_int();
+   //inizializzazione strutture ausiliarie
+   for (u = 0; u < g.n; u++)
+   raggiunto[u] = false;
+   //partiamo dal nodo sorgente s
+   enqueue_int(&q, s);
+   raggiunto [s] = true;
+
+   //finchè ci sono nodi nella coda
+   while(!empty_int(q)){
+      nodo_adiacenza* e;
+      //estrai il nodo
+      u = top_int(q);
+      pop_int(&q);
+      //applica la funzione di elaborazione al nodo corrente
+      elabora(g,u);
+      //enumera il vicinato (non raggiunto)
+      PEROGNI_VICINO(g, u, e, v){
+         if (!raggiunto[v]){
+            push_int(&q, v);
+            raggiunto[v] = true;
+         }
+      }
+   }
+   elimina_pila_int (&q);
+   free(raggiunto);
+}
+```
+
+#### Visita in profondità: costo computazionale
+
+Nella figura è indicato un possibile ordine di visita di ciascun nodo a partire da $s=2$ Inizialmente viene seguito il cammino più profondo fino al nodo di indice $4$, quindi il primo nodo ancora rimasto sulla pila è il nodo di indice $5$ (inserito furante l'esplorazione del vicinato di $8$) e vengono seguiti i cammini più profondi a partire da tale nodo
+
+![grafi5](img\grafi5.png)
+
+Analogamente al caso precedente: $O(n+m)$
+
+#### Visita in profondità: versione ricorsiva
+```
+void _applica_in_profondita_ricorsiva(grafo g, int u, void elabora(grafo,int), bool raggiunto[]){
+   nodo_adiacenza* e;
+   int v;
+   f(g, u);
+   raggiunto[u] = true;
+   PEROGNI_VICINO(g, u, e, v) {
+      if (!raggiunto[v])
+      _applica_in_profondita_ricorsiva(g, v, elabora, raggiunto);
+   }
+}
+```
+
+```
+void applica_in_profondita_ricorsiva(grafo g, int s, void elabora(grafo, int)){
+   bool* raggiuto = (bool*)malloc(g.n * sizeof(bool));
+   int u;
+   for(u = 0; u < g.n; u++)
+   raggiunto[u] = false;
+   _applica_in_profondità_ricorsiva(g, s, elabora, raggiunto);
+   free(raggiunto);
+}
+```
+
+#### Grafi diretti aciclici (DAG) e ordinamento topologico
+
+Un grafo diretto aciclico può rappresentare la relazione precedenza tra una serie di attività 
+
+la visita in profondità opportunamente adattata permentte di definire un ordinamendo dei nodi del grafo (nel caso sia diretto e aciclico)
+
+Resituiremo l'ordime delle attività memorizzato in una pila
+
+![Grafi6](img\Grafi6.png)
