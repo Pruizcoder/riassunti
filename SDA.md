@@ -2981,4 +2981,4 @@ Altri esempi di euristiche che vengono aggiornate dinamicamente in base agli ele
 
 Sebbene non sia stato dato il codice, la complessità è stimabile in $O(nr)$ con $r$ numero di risorse utilizzate nella soluzione, dovuta al fatto che a ciascun elemento devo cercare la risorsa al quale assegnarlo ($O(n^2)$ nel caso peggiore).
 
-Se le risorse vengono mantenute in una coda di priorità minima ordinata per istante di fine dell' ultima attività il tempo diventa $O(n\;log\,r)$, ovvero $O(n\; log\,n)$ nel caso peggiore.
+Se le risorse vengono mantenute in una coda di priorità minima ordinata per istante di fine dell' ultima attività il tempo diventa $O(n\;log\,r)$, ovvero $O(n\; log\,n)$ nel caso peggiore.\\\\\\\\\\\\
